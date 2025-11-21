@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # 1. The Backend Application Service
+  backend:
+    build: .
+    container_name: server-api
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./src:/app/src
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - PORT=${PORT}
+      - PWD_SECRET=${PWD_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+    depends_on:
+      - database # Tells Docker to start the database before starting the backend
+
+  # 2. The MongoDB Database Service
+  database:
+    image: mongo:latest
+    container_name: server-db
+    ports:
+      - "27017:27017" # Maps your PC's port 27017 (for MongoDB Compass)
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      # This saves your database data to a 'named volume' on your PC
+      # Your data will persist even if you stop and remove the container
+      - server-db-data:/data/db
+
+volumes:
+  server-db-data: # Declares the named volume
