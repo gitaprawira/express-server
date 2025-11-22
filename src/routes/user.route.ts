@@ -2,7 +2,13 @@ import { Router } from 'express'
 import { UserController } from '../controllers/user.controller'
 import { UserService } from '../services/user.service'
 import { UserRepository } from '../repositories/user.repository'
-import { isAdmin, isAuthenticated } from '../middlewares/auth.middleware'
+import {
+  isAuthenticated,
+  requirePermission,
+  requireAnyRole,
+  requireOwnershipOrPermission,
+} from '../middlewares/rbac.middleware'
+import { Permission, Role } from '../types/rbac.types'
 
 export default (router:Router) => {
     // Initialize Dependency Injection
@@ -58,8 +64,12 @@ export default (router:Router) => {
      *                     $ref: '#/components/schemas/User'
      *       '401':
      *         $ref: '#/components/responses/Unauthorized'
+     *       '403':
+     *         $ref: '#/components/responses/Forbidden'
+     *         description: Insufficient permissions (requires USER_LIST permission)
      */
-    router.get('/users', isAuthenticated, userController.getAllUsers)
+    // List all users - requires USER_LIST permission
+    router.get('/users', isAuthenticated, requirePermission(Permission.USER_LIST), userController.getAllUsers)
 
     /**
      * @swagger
@@ -88,11 +98,13 @@ export default (router:Router) => {
      *         $ref: '#/components/responses/Unauthorized'
      *       '403':
      *         $ref: '#/components/responses/Forbidden'
+     *         description: Not the owner and lacks USER_READ permission
      *       '404':
      *         $ref: '#/components/responses/NotFound'
      *
      *   delete:
-     *     summary: Delete a user by ID
+     *     summary: Delete a user by ID (Admin only)
+     *     description: Requires SUPER_ADMIN or ADMIN role and USER_DELETE permission
      *     tags:
      *       - Users
      *     security:
@@ -121,11 +133,15 @@ export default (router:Router) => {
      *         $ref: '#/components/responses/Unauthorized'
      *       '403':
      *         $ref: '#/components/responses/Forbidden'
+     *         description: Not SUPER_ADMIN/ADMIN role or lacks USER_DELETE permission
      *       '404':
      *         $ref: '#/components/responses/NotFound'
      */
-    router.get('/users/:id', isAuthenticated, isAdmin, userController.getUserById)
-    router.delete('/users/:id', isAuthenticated, isAdmin, userController.deleteUser)
+    // Get user by ID - requires USER_READ permission or ownership
+    router.get('/users/:id', isAuthenticated, requireOwnershipOrPermission('id', Permission.USER_READ), userController.getUserById)
+    
+    // Delete user - requires USER_DELETE permission (admin only)
+    router.delete('/users/:id', isAuthenticated, requireAnyRole([Role.SUPER_ADMIN, Role.ADMIN]), requirePermission(Permission.USER_DELETE), userController.deleteUser)
 
     /**
      * @swagger
@@ -155,9 +171,17 @@ export default (router:Router) => {
      *         lastname:
      *           type: string
      *           example: "Doe"
-     *         isAdmin:
-     *           type: boolean
-     *           example: true
+     *         image:
+     *           type: string
+     *           example: "https://example.com/profile/jane.jpg"
+     *           description: URL of user profile image
+     *         roles:
+     *           type: array
+     *           items:
+     *             type: string
+     *             enum: [super_admin, admin, manager, user, guest]
+     *           example: ["user"]
+     *           description: Array of roles assigned to the user
      *       required:
      *         - id
      *         - email
@@ -165,7 +189,7 @@ export default (router:Router) => {
      *     Unauthorized:
      *       description: Authentication required or invalid token
      *     Forbidden:
-     *       description: Insufficient permissions
+     *       description: Insufficient permissions (role or permission check failed)
      *     NotFound:
      *       description: Resource not found
      */

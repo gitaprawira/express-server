@@ -10,7 +10,7 @@ services:
     volumes:
       - ./src:/app/src
     environment:
-      - MONGODB_URI=${MONGODB_URI}
+      - MONGODB_URL=${MONGODB_URL}
       - PORT=${PORT}
       - PWD_SECRET=${PWD_SECRET}
       - JWT_SECRET=${JWT_SECRET}

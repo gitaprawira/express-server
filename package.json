@@ -7,7 +7,8 @@
     "build": "rimraf .dist && tsc",
     "start": "npm run build && node dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md,html}\" \"*.{js,ts,json,md,html}\""
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md,html}\" \"*.{js,ts,json,md,html}\"",
+    "seed:rbac": "ts-node src/seeders/rbac.seeder.ts"
   },
   "author": "Soloware",
   "license": "MIT",

@@ -1,4 +1,12 @@
 import { UserRepository } from "../repositories/user.repository"
+import {
+  MESSAGE_FAILED_TO_FETCH_USERS,
+  MESSAGE_FAILED_TO_FETCH_USER,
+  MESSAGE_FAILED_TO_DELETE_USER,
+  LOG_ERROR_FETCHING_USERS,
+  LOG_ERROR_FETCHING_USER,
+  LOG_ERROR_DELETING_USER,
+} from '../utils/constans'
 
 export class UserService {
   private userRepository: UserRepository
@@ -7,33 +15,42 @@ export class UserService {
     this.userRepository = userRepository
   }
 
+  /**
+   * Get all users
+   */
   async getAllUsers() {
     try {
       return await this.userRepository.findAll()
     }
     catch (error) {
-      console.error('Error fetching users:', error)
-      throw new Error('Failed to fetch users')
+      console.error(LOG_ERROR_FETCHING_USERS, error)
+      throw new Error(MESSAGE_FAILED_TO_FETCH_USERS)
     }
   }
 
+  /**
+   * Get user by ID
+   */
   async getUserById(id: string) {
     try {
       return await this.userRepository.findById(id)
     }
     catch (error) {
-      console.error(`Error fetching user with id ${id}:`, error)
-      throw new Error('Failed to fetch user')
+      console.error(`${LOG_ERROR_FETCHING_USER} ${id}:`, error)
+      throw new Error(MESSAGE_FAILED_TO_FETCH_USER)
     }
   }
 
+  /**
+   * Delete user by ID
+   */
   async deleteUser(id: string) {
     try {
       return await this.userRepository.delete(id)
     }
     catch (error) {
-      console.error(`Error deleting user with id ${id}:`, error)
-      throw new Error('Failed to delete user')
+      console.error(`${LOG_ERROR_DELETING_USER} ${id}:`, error)
+      throw new Error(MESSAGE_FAILED_TO_DELETE_USER)
     }
   }
 }

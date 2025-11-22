@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { AuthService } from '../services/auth.service'
+import { AuthorizationService } from '../services/authorization.service'
 import {
   HTTP_BAD_REQUEST,
   HTTP_FORBIDDEN,
@@ -7,15 +7,19 @@ import {
   MESSAGE_FORBIDDEN,
   MESSAGE_IS_EXISTS,
   MESSAGE_UNEXPECTED_ERROR,
+  MESSAGE_REFRESH_TOKEN_NOT_FOUND,
 } from '../utils/constans'
 
 export class AuthController {
-  private authService: AuthService
+  private authService: AuthorizationService
 
-  constructor(authService: AuthService) {
+  constructor(authService: AuthorizationService) {
     this.authService = authService
   }
 
+  /**
+   * User Sign In
+   */
   signIn = async (req: Request, res: Response) => {
     const { email, password } = req.body
     if (!email || !password) {
@@ -48,15 +52,19 @@ export class AuthController {
     }
   }
 
+  /**   
+   * User Sign Up
+   */
   signUp = async (req: Request, res: Response) => {
-    const { email, password, username, firstname, lastname, isAdmin } = req.body
+    const { email, password, username, firstname, lastname, image, roles } = req.body
     const result = await this.authService.register(
       email,
       password,
       username,
       firstname,
       lastname,
-      isAdmin,
+      image,
+      roles,
     )
     
     if (result) {
@@ -76,6 +84,9 @@ export class AuthController {
     }
   }
 
+  /**
+   * User Sign Out
+   */
   signOut = async (req: Request, res: Response) => {
     const { refreshToken } = req.body
     const result = await this.authService.signOut(refreshToken)
@@ -98,12 +109,15 @@ export class AuthController {
     }
   }
 
+  /**
+   * Refresh JWT Token
+   */
   refreshToken = async (req: Request, res: Response) => {
     const incomingRefreshToken =
       req.cookies?.refreshToken || req.body?.refreshToken
 
     if (!incomingRefreshToken) {
-      return res.status(401).json({ message: 'Refresh token not found.' })
+      return res.status(401).json({ message: MESSAGE_REFRESH_TOKEN_NOT_FOUND })
     }
     const result = await this.authService.tokenRefresh(incomingRefreshToken)
 
@@ -124,6 +138,9 @@ export class AuthController {
     }
   }
 
+  /**
+   * Get Current User Info
+   */
   me = async (req: Request, res: Response) => {
     if (req.user) {
       return res.status(HTTP_OK).json({

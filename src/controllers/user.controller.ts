@@ -15,6 +15,9 @@ export class UserController {
     this.userService = userService
   }
 
+  /**
+   * Get All Users
+   */
   getAllUsers = async (req: Request, res: Response) => {
     const result = await this.userService.getAllUsers()
 
@@ -36,6 +39,9 @@ export class UserController {
     }
   }
   
+  /**
+   * Get User by ID
+   */
   getUserById = async (req: Request, res: Response) => {
     const { id } = req.params
     const result = await this.userService.getUserById(id)
@@ -57,6 +63,9 @@ export class UserController {
     }
   }
 
+  /**
+   * Delete User
+   */
   deleteUser = async (req: Request, res: Response) => {
     const { id } = req.params
     const result = await this.userService.deleteUser(id)

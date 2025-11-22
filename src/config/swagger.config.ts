@@ -1,14 +1,17 @@
 import swaggerJsdoc from 'swagger-jsdoc'
 
+/**
+ * Swagger options for API documentation
+ */
 const swaggerOptions: swaggerJsdoc.Options = {
   swaggerDefinition: {
     openapi: '3.0.0',
     info: {
-      title: 'POS API',
+      title: 'express-server API Documentation',
       version: '1.0.0',
-      description: 'Soloware POS API for Point of Sales Application',
+      description: 'API documentation for the express-server application',
       contact: {
-        name: 'Soloware',
+        name: 'github.com/gitaprawira',
       },
     },
     servers: [

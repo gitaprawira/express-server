@@ -61,14 +61,14 @@ npm install
 Create a .env file in the root directory of the project by copying the example file:
 
 ```bash
-cp .env.template .env
+cp .env.example .env
 ```
 
 Now, open the .env file and update the variables with your configuration, especially your MongoDB connection string and server port.
 
 ```.env
 # .env
-MONGODB_URI=mongodb://localhost:27017/soloware_pos
+MONGODB_URL=mongodb://localhost:27017/soloware_pos
 PORT=8080
 ```
 
@@ -132,7 +132,7 @@ Create a `.env` file in the root of this project. Docker Compose will automatica
 
 ```.env
 # NOTE: The host is 'database', which is the service name from docker-compose.yml
-MONGODB_URI=mongodb://admin:password@database:27017/pos?authSource=admin
+MONGODB_URL=mongodb://admin:password@database:27017/pos?authSource=admin
 PORT=8080
 PWS_SECRET=<your-secret-here>
 
@@ -175,7 +175,7 @@ The folder structure of this app is explained below:
 │   ├── app.ts                # Express App setup
 │   └── server.ts             # Main server entry point (configures and starts Express)
 ├── .env                      # Environment variables (ignored by Git)
-├── .env.template             # Template for environment variables
+├── .env.example              # Example template for environment variables
 ├── .gitignore                # Specifies files for Git to ignore
 ├── package.json              # Project metadata and scripts
 ├── tsconfig.json             # TypeScript compiler options
@@ -318,8 +318,117 @@ Full Example (for a POST /users route):
   - `description:`: A human-readable description of this response.
   - `content: ... schema:`: (Optional) Describes the structure of the data returned in this response.
 
+## RBAC (Role-Based Access Control) 🔐
+
+This project implements a comprehensive RBAC system following SOLID principles for secure and flexible access control.
+
+### RBAC Features
+
+- ✅ **5 Predefined Roles**: super_admin, admin, manager, user, guest
+- ✅ **19 Granular Permissions**: Fine-grained control over resources
+- ✅ **Flexible Middleware**: Easy-to-use permission and role checks
+- ✅ **SOLID Principles**: Clean, maintainable, and extensible architecture
+- ✅ **TypeScript Support**: Full type safety
+- ✅ **Database Seeder**: Quick setup with default configurations
+
+### Quick Setup
+
+1.**Seed RBAC Data** (First time only):
+
+```bash
+npm run seed:rbac
+```
+
+2.**Create Admin User**:
+
+```bash
+POST /api/auth/signup
+{
+  "email": "admin@example.com",
+  "password": "SecurePass123",
+  "username": "admin",
+  "roles": ["admin"]
+}
+```
+
+3.**Protect Routes**:
+
+```typescript
+import { requirePermission, requireRole } from './middlewares/rbac.middleware'
+import { Permission, Role } from './types/rbac.types'
+
+// Require specific permission
+router.get('/users', isAuthenticated, requirePermission(Permission.USER_LIST), controller.getAllUsers)
+
+// Require specific role
+router.delete('/users/:id', isAuthenticated, requireRole(Role.ADMIN), controller.deleteUser)
+```
+
+### Available Roles & Permissions
+
+| Role | Description | Key Permissions |
+|------|-------------|-----------------|
+| **super_admin** | Full system access | All permissions |
+| **admin** | User management | User CRUD, Role read |
+| **manager** | Limited user management | User read/update/list |
+| **user** | Self management | Self read/update |
+| **guest** | Read-only | Self read only |
+
+### Middleware Examples
+
+```typescript
+// Single permission
+requirePermission(Permission.USER_READ)
+
+// Multiple permissions (any)
+requireAnyPermission([Permission.USER_READ, Permission.USER_UPDATE])
+
+// Multiple permissions (all)
+requireAllPermissions([Permission.USER_CREATE, Permission.ROLE_ASSIGN])
+
+// Role check
+requireRole(Role.ADMIN)
+
+// Multiple roles (any)
+requireAnyRole([Role.SUPER_ADMIN, Role.ADMIN])
+
+// Ownership or admin
+requireOwnershipOrAdmin('userId')
+
+// Ownership or permission
+requireOwnershipOrPermission('userId', Permission.USER_UPDATE)
+```
+
+### Documentation
+
+- 📖 **[Full Documentation](./docs/RBAC_DOCUMENTATION.md)** - Comprehensive guide with architecture details
+- 🚀 **[Quick Reference](./docs/RBAC_QUICKSTART.md)** - Quick start guide and common patterns
+
+### RBAC API Endpoints
+
+#### Roles Management
+
+- `GET /api/roles` - List all roles (requires ROLE_LIST permission)
+- `GET /api/roles/:name` - Get role details (requires ROLE_READ permission)
+- `POST /api/roles` - Create new role (Super Admin only)
+- `PUT /api/roles/:name/permissions` - Update role permissions (Super Admin only)
+- `DELETE /api/roles/:name` - Delete role (Super Admin only)
+
+#### User Authentication with Roles
+
+- `POST /api/auth/signup` - Register with optional roles parameter
+- `POST /api/auth/signin` - Login (returns user with roles)
+
 ## Common Issues
 
 ### npm install fails
 
 The current solution has an example for using a private npm repository. if you want to use the public npm repository, remove the .npmrc file.
+
+### RBAC: "No roles assigned" error
+
+Run the RBAC seeder to create default roles and permissions:
+
+```bash
+npm run seed:rbac
+```

@@ -1,13 +1,17 @@
 import { Router } from 'express'
 import { AuthController } from '../controllers/auth.controller'
-import { AuthService } from '../services/auth.service'
+import { AuthorizationService } from '../services/authorization.service'
 import { UserRepository } from '../repositories/user.repository'
-import { isAuthenticated } from '../middlewares/auth.middleware'
+import { RoleRepository } from '../repositories/role.repository'
+import { PermissionRepository } from '../repositories/permission.repository'
+import { isAuthenticated } from '../middlewares/rbac.middleware'
 
 export default (router:Router) => {
     // Initialize Dependency Injection
     const userRepository = new UserRepository();
-    const authService = new AuthService(userRepository);
+    const roleRepository = new RoleRepository();
+    const permissionRepository = new PermissionRepository();
+    const authService = new AuthorizationService(roleRepository, permissionRepository, userRepository);
     const authController = new AuthController(authService);
 
     /**
@@ -191,7 +195,6 @@ export default (router:Router) => {
      *           example: user@example.com
      *         password:
      *           type: string
-     *           format: password
      *           example: password123
      *     SignupRequest:
      *       type: object
@@ -201,7 +204,6 @@ export default (router:Router) => {
      *         - username
      *         - firstname
      *         - lastname
-     *         - isAdmin
      *       properties:
      *         username:
      *           type: string
@@ -220,9 +222,17 @@ export default (router:Router) => {
      *         lastname:
      *           type: string
      *           example: Doe
-     *         isAdmin:
-     *           type: boolean
-     *           example: true
+     *         image:
+     *           type: string
+     *           example: https://example.com/profile/jane.jpg
+     *           description: URL of user profile image (optional)
+     *         roles:
+     *           type: array
+     *           items:
+     *             type: string
+     *             enum: [super_admin, admin, manager, user, guest]
+     *           example: ["user"]
+     *           description: Array of roles to assign to the user. Defaults to user role if not provided
      *     SignoutRequest:
      *       type: object
      *       required:
@@ -258,10 +268,22 @@ export default (router:Router) => {
      *           type: string
      *           format: email
      *           example: jane@example.com
-     *         isAdmin:
-     *           type: boolean
-     *           example: true
+     *         image:
+     *           type: string
+     *           example: https://example.com/profile/jane.jpg
+     *           description: URL of user profile image
+     *         roles:
+     *           type: array
+     *           items:
+     *             type: string
+     *             enum: [super_admin, admin, manager, user, guest]
+     *           example: ["user"]
+     *           description: Array of roles assigned to the user
      *         createdAt:
+     *           type: string
+     *           format: date-time
+     *           example: 2025-01-01T12:00:00.000Z
+     *         updatedAt:
      *           type: string
      *           format: date-time
      *           example: 2025-01-01T12:00:00.000Z

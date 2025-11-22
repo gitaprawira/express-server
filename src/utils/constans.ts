@@ -1,10 +1,13 @@
+// HTTP Status Codes
 export const HTTP_OK = 200
+export const HTTP_CREATED = 201
 export const HTTP_BAD_REQUEST = 400
 export const HTTP_UNAUTHORIZED = 401
 export const HTTP_FORBIDDEN = 403
 export const HTTP_NOT_FOUND = 404
 export const HTTP_INTERNAL_SERVER_ERROR = 500
 
+// General messages
 export const MESSAGE_NOT_FOUND = 'Data Not found!'
 export const MESSAGE_FORBIDDEN = 'Forbidden!'
 export const MESSAGE_UNEXPECTED_ERROR = 'Unexpected Error Occurred!'
@@ -40,3 +43,31 @@ export const MESSAGE_AUTHENTICATION_FAILED = 'Authentication failed'
 export const MESSAGE_AUTHORIZATION_CHECK_FAILED = 'Authorization check failed'
 export const MESSAGE_OWNERSHIP_CHECK_FAILED = 'Ownership check failed'
 export const MESSAGE_JWT_SECRET_NOT_CONFIGURED = 'JWT_SECRET is not configured'
+
+// RBAC messages
+export const MESSAGE_ROLE_NOT_FOUND = 'Required role not found'
+export const MESSAGE_PERMISSION_NOT_FOUND = 'Required permission not found'
+export const MESSAGE_INSUFFICIENT_PERMISSIONS = 'Insufficient permissions to perform this action'
+export const MESSAGE_NO_ROLES_ASSIGNED = 'No roles assigned to user'
+export const MESSAGE_INVALID_ROLE = 'Invalid role specified'
+export const MESSAGE_INVALID_PERMISSION = 'Invalid permission specified'
+export const MESSAGE_ROLE_ALREADY_EXISTS = 'Role already exists'
+export const MESSAGE_PERMISSION_ALREADY_EXISTS = 'Permission already exists'
+export const MESSAGE_ROLE_ASSIGNMENT_FAILED = 'Failed to assign role'
+export const MESSAGE_PERMISSION_ASSIGNMENT_FAILED = 'Failed to assign permission'
+export const LOG_AUTHORIZATION_ERROR = 'Authorization error:'
+export const LOG_RBAC_ERROR = 'RBAC error:'
+
+// User service messages
+export const MESSAGE_FAILED_TO_FETCH_USERS = 'Failed to fetch users'
+export const MESSAGE_FAILED_TO_FETCH_USER = 'Failed to fetch user'
+export const MESSAGE_FAILED_TO_DELETE_USER = 'Failed to delete user'
+export const LOG_ERROR_FETCHING_USERS = 'Error fetching users:'
+export const LOG_ERROR_FETCHING_USER = 'Error fetching user with id'
+export const LOG_ERROR_DELETING_USER = 'Error deleting user with id'
+
+// Role controller messages
+export const MESSAGE_ROLE_DELETED_SUCCESS = 'Role deleted successfully'
+
+// Refresh token messages
+export const MESSAGE_REFRESH_TOKEN_NOT_FOUND = 'Refresh token not found.'
