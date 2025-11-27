@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import { Role, Permission } from '../types/rbac.types'
-import { AuthorizationService } from '../services/authorization.service'
+import { AuthService } from '../services/auth.service'
 import { RoleRepository } from '../repositories/role.repository'
 import { PermissionRepository } from '../repositories/permission.repository'
 import { UserRepository } from '../repositories/user.repository'
@@ -32,7 +32,7 @@ declare global {
 const roleRepository = new RoleRepository()
 const permissionRepository = new PermissionRepository()
 const userRepository = new UserRepository()
-const authorizationService = new AuthorizationService(
+const authorizationService = new AuthService(
   roleRepository,
   permissionRepository,
   userRepository,

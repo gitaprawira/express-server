@@ -1,14 +1,12 @@
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 import { RoleService } from '../services/role.service'
 import {
   HTTP_OK,
   HTTP_CREATED,
-  HTTP_BAD_REQUEST,
-  HTTP_NOT_FOUND,
-  MESSAGE_NOT_FOUND,
-  MESSAGE_UNEXPECTED_ERROR,
   MESSAGE_ROLE_DELETED_SUCCESS,
 } from '../utils/constans'
+import { ResponseBuilder } from '../utils/response-builder'
+import { catchAsync } from '../utils/catch-async'
 
 export class RoleController {
   private roleService: RoleService
@@ -20,174 +18,106 @@ export class RoleController {
   /**
    * Get All Roles
    */
-  getAllRoles = async (req: Request, res: Response) => {
-    try {
-      const roles = await this.roleService.getAllRoles()
-      return res.status(HTTP_OK).json({
-        success: true,
-        errorMessage: null,
-        statusCode: HTTP_OK,
-        data: roles,
-      })
-    } catch (error) {
-      return res.status(HTTP_BAD_REQUEST).json({
-        success: false,
-        errorMessage: MESSAGE_UNEXPECTED_ERROR,
-        statusCode: HTTP_BAD_REQUEST,
-      })
-    }
-  }
+  getAllRoles = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const roles = await this.roleService.getAllRoles()
+    
+    return ResponseBuilder.success(res)
+      .withStatusCode(HTTP_OK)
+      .withData(roles)
+      .send()
+  })
 
   /**
    * Get Role by Name
    */
-  getRoleByName = async (req: Request, res: Response) => {
-    try {
-      const { name } = req.params
-      const role = await this.roleService.getRoleByName(name as any)
-      return res.status(HTTP_OK).json({
-        success: true,
-        errorMessage: null,
-        statusCode: HTTP_OK,
-        data: role,
-      })
-    } catch (error) {
-      return res.status(HTTP_NOT_FOUND).json({
-        success: false,
-        errorMessage: MESSAGE_NOT_FOUND,
-        statusCode: HTTP_NOT_FOUND,
-      })
-    }
-  }
+  getRoleByName = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const { name } = req.params
+    const role = await this.roleService.getRoleByName(name as any)
+    
+    return ResponseBuilder.success(res)
+      .withStatusCode(HTTP_OK)
+      .withData(role)
+      .send()
+  })
 
   /**
    * Create a New Role
    */
-  createRole = async (req: Request, res: Response) => {
-    try {
-      const { name, description, permissions } = req.body
-      const role = await this.roleService.createRole(
-        name,
-        description,
-        permissions,
-      )
-      return res.status(HTTP_CREATED).json({
-        success: true,
-        errorMessage: null,
-        statusCode: HTTP_CREATED,
-        data: role,
-      })
-    } catch (error) {
-      return res.status(HTTP_BAD_REQUEST).json({
-        success: false,
-        errorMessage:
-          error instanceof Error ? error.message : MESSAGE_UNEXPECTED_ERROR,
-        statusCode: HTTP_BAD_REQUEST,
-      })
-    }
-  }
+  createRole = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const { name, description, permissions } = req.body
+    const role = await this.roleService.createRole(
+      name,
+      description,
+      permissions,
+    )
+    
+    return ResponseBuilder.success(res)
+      .withStatusCode(HTTP_CREATED)
+      .withData(role)
+      .send()
+  })
 
   /**
    * Update Role Permissions
    */
-  updateRolePermissions = async (req: Request, res: Response) => {
-    try {
-      const { name } = req.params
-      const { permissions } = req.body
-      const role = await this.roleService.updateRolePermissions(
-        name as any,
-        permissions,
-      )
-      return res.status(HTTP_OK).json({
-        success: true,
-        errorMessage: null,
-        statusCode: HTTP_OK,
-        data: role,
-      })
-    } catch (error) {
-      return res.status(HTTP_BAD_REQUEST).json({
-        success: false,
-        errorMessage:
-          error instanceof Error ? error.message : MESSAGE_UNEXPECTED_ERROR,
-        statusCode: HTTP_BAD_REQUEST,
-      })
-    }
-  }
+  updateRolePermissions = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const { name } = req.params
+    const { permissions } = req.body
+    const role = await this.roleService.updateRolePermissions(
+      name as any,
+      permissions,
+    )
+    
+    return ResponseBuilder.success(res)
+      .withStatusCode(HTTP_OK)
+      .withData(role)
+      .send()
+  })
 
   /**
    * Add Permissions to Role
    */
-  addPermissions = async (req: Request, res: Response) => {
-    try {
-      const { name } = req.params
-      const { permissions } = req.body
-      const role = await this.roleService.addPermissionsToRole(
-        name as any,
-        permissions,
-      )
-      return res.status(HTTP_OK).json({
-        success: true,
-        errorMessage: null,
-        statusCode: HTTP_OK,
-        data: role,
-      })
-    } catch (error) {
-      return res.status(HTTP_BAD_REQUEST).json({
-        success: false,
-        errorMessage:
-          error instanceof Error ? error.message : MESSAGE_UNEXPECTED_ERROR,
-        statusCode: HTTP_BAD_REQUEST,
-      })
-    }
-  }
+  addPermissions = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const { name } = req.params
+    const { permissions } = req.body
+    const role = await this.roleService.addPermissionsToRole(
+      name as any,
+      permissions,
+    )
+    
+    return ResponseBuilder.success(res)
+      .withStatusCode(HTTP_OK)
+      .withData(role)
+      .send()
+  })
 
   /**
    * Remove Permissions from Role
    */
-  removePermissions = async (req: Request, res: Response) => {
-    try {
-      const { name } = req.params
-      const { permissions } = req.body
-      const role = await this.roleService.removePermissionsFromRole(
-        name as any,
-        permissions,
-      )
-      return res.status(HTTP_OK).json({
-        success: true,
-        errorMessage: null,
-        statusCode: HTTP_OK,
-        data: role,
-      })
-    } catch (error) {
-      return res.status(HTTP_BAD_REQUEST).json({
-        success: false,
-        errorMessage:
-          error instanceof Error ? error.message : MESSAGE_UNEXPECTED_ERROR,
-        statusCode: HTTP_BAD_REQUEST,
-      })
-    }
-  }
+  removePermissions = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const { name } = req.params
+    const { permissions } = req.body
+    const role = await this.roleService.removePermissionsFromRole(
+      name as any,
+      permissions,
+    )
+    
+    return ResponseBuilder.success(res)
+      .withStatusCode(HTTP_OK)
+      .withData(role)
+      .send()
+  })
 
   /**
    * Delete Role
    */
-  deleteRole = async (req: Request, res: Response) => {
-    try {
-      const { name } = req.params
-      await this.roleService.deleteRole(name as any)
-      return res.status(HTTP_OK).json({
-        success: true,
-        errorMessage: null,
-        statusCode: HTTP_OK,
-        data: { message: MESSAGE_ROLE_DELETED_SUCCESS },
-      })
-    } catch (error) {
-      return res.status(HTTP_BAD_REQUEST).json({
-        success: false,
-        errorMessage:
-          error instanceof Error ? error.message : MESSAGE_UNEXPECTED_ERROR,
-        statusCode: HTTP_BAD_REQUEST,
-      })
-    }
-  }
+  deleteRole = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const { name } = req.params
+    await this.roleService.deleteRole(name as any)
+    
+    return ResponseBuilder.success(res)
+      .withStatusCode(HTTP_OK)
+      .withData({ message: MESSAGE_ROLE_DELETED_SUCCESS })
+      .send()
+  })
 }

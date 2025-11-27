@@ -1,12 +1,10 @@
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 import { UserService } from '../services/user.service'
 import {
-  HTTP_BAD_REQUEST,
-  HTTP_FORBIDDEN,
   HTTP_OK,
-  MESSAGE_FORBIDDEN,
-  MESSAGE_UNEXPECTED_ERROR,
 } from '../utils/constans'
+import { ResponseBuilder } from '../utils/response-builder'
+import { catchAsync } from '../utils/catch-async'
 
 export class UserController {
   private userService: UserService
@@ -18,73 +16,38 @@ export class UserController {
   /**
    * Get All Users
    */
-  getAllUsers = async (req: Request, res: Response) => {
+  getAllUsers = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const result = await this.userService.getAllUsers()
 
-    if (result) {
-      return res
-        .json({
-          success: true,
-          errorMessage: null,
-          statusCode: HTTP_OK,
-          data: result,
-        })
-        .end()
-    } else {
-      return res.json({
-        success: false,
-        errorMessage: MESSAGE_FORBIDDEN,
-        statusCode: HTTP_FORBIDDEN,
-      })
-    }
-  }
+    return ResponseBuilder.success(res)
+      .withStatusCode(HTTP_OK)
+      .withData(result)
+      .send()
+  })
   
   /**
    * Get User by ID
    */
-  getUserById = async (req: Request, res: Response) => {
+  getUserById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params
     const result = await this.userService.getUserById(id)
-    if (result) {
-      return res
-        .json({
-          success: true,
-          errorMessage: null,
-          statusCode: HTTP_OK,
-          data: result,
-        })
-        .end()
-    } else {
-      return res.json({
-        success: false,
-        errorMessage: MESSAGE_FORBIDDEN,
-        statusCode: HTTP_FORBIDDEN,
-      })
-    }
-  }
+    
+    return ResponseBuilder.success(res)
+      .withStatusCode(HTTP_OK)
+      .withData(result)
+      .send()
+  })
 
   /**
    * Delete User
    */
-  deleteUser = async (req: Request, res: Response) => {
+  deleteUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params
     const result = await this.userService.deleteUser(id)
 
-    if (result) {
-      return res
-        .json({
-          success: true,
-          errorMessage: null,
-          statusCode: HTTP_OK,
-          data: result,
-        })
-        .end()
-    } else {
-      return res.json({
-        success: false,
-        errorMessage: MESSAGE_UNEXPECTED_ERROR,
-        statusCode: HTTP_BAD_REQUEST,
-      })
-    }
-  }
+    return ResponseBuilder.success(res)
+      .withStatusCode(HTTP_OK)
+      .withData(result)
+      .send()
+  })
 }

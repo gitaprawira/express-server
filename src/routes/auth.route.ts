@@ -1,17 +1,17 @@
 import { Router } from 'express'
 import { AuthController } from '../controllers/auth.controller'
-import { AuthorizationService } from '../services/authorization.service'
+import { AuthService } from '../services/auth.service'
 import { UserRepository } from '../repositories/user.repository'
 import { RoleRepository } from '../repositories/role.repository'
 import { PermissionRepository } from '../repositories/permission.repository'
-import { isAuthenticated } from '../middlewares/rbac.middleware'
+import { isAuthenticated } from '../middlewares/auth.middleware'
 
 export default (router:Router) => {
     // Initialize Dependency Injection
     const userRepository = new UserRepository();
     const roleRepository = new RoleRepository();
     const permissionRepository = new PermissionRepository();
-    const authService = new AuthorizationService(roleRepository, permissionRepository, userRepository);
+    const authService = new AuthService(roleRepository, permissionRepository, userRepository);
     const authController = new AuthController(authService);
 
     /**
@@ -127,12 +127,6 @@ export default (router:Router) => {
      *     summary: Exchange a refresh token for a new access token
      *     tags:
      *       - Authentication
-     *     requestBody:
-     *       required: true
-     *       content:
-     *         application/json:
-     *           schema:
-     *             $ref: '#/components/schemas/RefreshRequest'
      *     responses:
      *       '200':
      *         description: Tokens refreshed

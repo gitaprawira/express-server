@@ -6,6 +6,8 @@ import cors from 'cors'
 import swaggerUi from 'swagger-ui-express'
 import { swaggerSpec } from './config/swagger.config'
 import router from './routes'
+import { globalErrorHandler } from './middlewares/error-handler.middleware'
+import { AppError } from './utils/app-error'
 
 const app: Application = express()
 
@@ -30,12 +32,12 @@ app.get('/health', (req, res) => {
   })
 })
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({
-    status: 'error',
-    message: 'Route not found',
-  })
+// 404 handler - must be before global error handler
+app.all('*', (req, res, next) => {
+  next(new AppError(`Cannot find ${req.originalUrl} on this server!`, 404))
 })
+
+// Global Error Handler - must be last
+app.use(globalErrorHandler)
 
 export default app

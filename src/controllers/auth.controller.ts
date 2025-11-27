@@ -1,61 +1,41 @@
-import { Request, Response } from 'express'
-import { AuthorizationService } from '../services/authorization.service'
+import { Request, Response, NextFunction } from 'express'
+import { AuthService } from '../services/auth.service'
 import {
-  HTTP_BAD_REQUEST,
-  HTTP_FORBIDDEN,
   HTTP_OK,
-  MESSAGE_FORBIDDEN,
-  MESSAGE_IS_EXISTS,
-  MESSAGE_UNEXPECTED_ERROR,
   MESSAGE_REFRESH_TOKEN_NOT_FOUND,
 } from '../utils/constans'
+import { ResponseBuilder } from '../utils/response-builder'
+import { catchAsync } from '../utils/catch-async'
+import { AppError } from '../utils/app-error'
 
 export class AuthController {
-  private authService: AuthorizationService
+  private authService: AuthService
 
-  constructor(authService: AuthorizationService) {
+  constructor(authService: AuthService) {
     this.authService = authService
   }
 
   /**
    * User Sign In
    */
-  signIn = async (req: Request, res: Response) => {
+  signIn = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body
-    if (!email || !password) {
-      return res.status(HTTP_BAD_REQUEST).json({
-        success: false,
-        errorMessage: MESSAGE_FORBIDDEN,
-        statusCode: HTTP_FORBIDDEN,
-      })
-    }
-
     const result = await this.authService.authenticate(email, password)
-    if (result) {
-      res.cookie('refreshToken', result.refreshToken, {
+    
+    return ResponseBuilder.success(res)
+      .withStatusCode(HTTP_OK)
+      .withData(result)
+      .withCookie('refreshToken', result.refreshToken, {
         httpOnly: true,
         maxAge: 7 * 24 * 60 * 60 * 1000,
       })
-      return res.status(HTTP_OK).json({
-        success: true,
-        errorMessage: null,
-        statusCode: HTTP_OK,
-        data: result,
-      })
-      .end()
-    } else {
-      return res.status(HTTP_FORBIDDEN).json({
-        success: false,
-        errorMessage: MESSAGE_FORBIDDEN,
-        statusCode: HTTP_FORBIDDEN,
-      })
-    }
-  }
+      .send()
+  })
 
   /**   
    * User Sign Up
    */
-  signUp = async (req: Request, res: Response) => {
+  signUp = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { email, password, username, firstname, lastname, image, roles } = req.body
     const result = await this.authService.register(
       email,
@@ -67,95 +47,55 @@ export class AuthController {
       roles,
     )
     
-    if (result) {
-      return res.status(HTTP_OK).json({
-        success: true,
-        errorMessage: null,
-        statusCode: HTTP_OK,
-        data: result,
-      })
-      .end()
-    } else {
-      return res.status(HTTP_BAD_REQUEST).json({
-        success: false,
-        errorMessage: MESSAGE_IS_EXISTS,
-        statusCode: HTTP_BAD_REQUEST,
-      })
-    }
-  }
+    return ResponseBuilder.success(res)
+      .withStatusCode(HTTP_OK)
+      .withData(result)
+      .send()
+  })
 
   /**
    * User Sign Out
    */
-  signOut = async (req: Request, res: Response) => {
+  signOut = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { refreshToken } = req.body
     const result = await this.authService.signOut(refreshToken)
 
-    if (result) {
-      res.clearCookie('refreshToken', { httpOnly: true })
-      return res.status(HTTP_OK).json({
-        success: true,
-        errorMessage: null,
-        statusCode: HTTP_OK,
-        data: result,
-      })
-      .end()
-    } else {
-      return res.status(HTTP_BAD_REQUEST).json({
-        success: false,
-        errorMessage: MESSAGE_UNEXPECTED_ERROR,
-        statusCode: HTTP_BAD_REQUEST,
-      })
-    }
-  }
+    return ResponseBuilder.success(res)
+      .withStatusCode(HTTP_OK)
+      .withData(result)
+      .clearCookie('refreshToken', { httpOnly: true })
+      .send()
+  })
 
   /**
    * Refresh JWT Token
    */
-  refreshToken = async (req: Request, res: Response) => {
-    const incomingRefreshToken =
-      req.cookies?.refreshToken || req.body?.refreshToken
+  refreshToken = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const incomingRefreshToken = req.cookies?.refreshToken
 
     if (!incomingRefreshToken) {
-      return res.status(401).json({ message: MESSAGE_REFRESH_TOKEN_NOT_FOUND })
+      throw new AppError(MESSAGE_REFRESH_TOKEN_NOT_FOUND, 401)
     }
+    
     const result = await this.authService.tokenRefresh(incomingRefreshToken)
 
-    if (result) {
-      return res.status(HTTP_OK).json({
-        success: true,
-        errorMessage: null,
-        statusCode: HTTP_OK,
-        data: result,
-      })
-      .end()
-    } else {
-      return res.status(HTTP_BAD_REQUEST).json({
-        success: false,
-        errorMessage: MESSAGE_UNEXPECTED_ERROR,
-        statusCode: HTTP_BAD_REQUEST,
-      })
-    }
-  }
+    return ResponseBuilder.success(res)
+      .withStatusCode(HTTP_OK)
+      .withData(result)
+      .send()
+  })
 
   /**
    * Get Current User Info
    */
-  me = async (req: Request, res: Response) => {
-    if (req.user) {
-      return res.status(HTTP_OK).json({
-        success: true,
-        errorMessage: null,
-        statusCode: HTTP_OK,
-        data: req.user,
-      })
-      .end()
-    } else {
-      return res.status(HTTP_FORBIDDEN).json({
-        success: false,
-        errorMessage: MESSAGE_FORBIDDEN,
-        statusCode: HTTP_FORBIDDEN,
-      })
+  me = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      throw new AppError('User not authenticated', 401)
     }
-  }
+
+    return ResponseBuilder.success(res)
+      .withStatusCode(HTTP_OK)
+      .withData(req.user)
+      .send()
+  })
 }

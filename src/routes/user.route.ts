@@ -7,7 +7,7 @@ import {
   requirePermission,
   requireAnyRole,
   requireOwnershipOrPermission,
-} from '../middlewares/rbac.middleware'
+} from '../middlewares/auth.middleware'
 import { Permission, Role } from '../types/rbac.types'
 
 export default (router:Router) => {
