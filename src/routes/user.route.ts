@@ -25,7 +25,7 @@ export default (router:Router) => {
 
     /**
      * @swagger
-     * /api/users:
+     * /users:
      *   get:
      *     summary: Retrieve a paginated list of users
      *     tags:
@@ -73,7 +73,7 @@ export default (router:Router) => {
 
     /**
      * @swagger
-     * /api/users/{id}:
+     * /users/{id}:
      *   get:
      *     summary: Retrieve a single user by ID
      *     tags:

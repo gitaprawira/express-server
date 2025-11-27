@@ -23,7 +23,7 @@ export default (router:Router) => {
 
     /**
      * @swagger
-     * /api/auth/signin:
+     * /auth/signin:
      *   post:
      *     summary: Authenticate a user and obtain JWT access and refresh tokens
      *     tags:
@@ -54,7 +54,7 @@ export default (router:Router) => {
 
     /**
      * @swagger
-     * /api/auth/signup:
+     * /auth/signup:
      *   post:
      *     summary: Create a new user account
      *     tags:
@@ -89,7 +89,7 @@ export default (router:Router) => {
 
     /**
      * @swagger
-     * /api/auth/signout:
+     * /auth/signout:
      *   post:
      *     summary: Invalidate current access/refresh tokens (signout)
      *     tags:
@@ -122,7 +122,7 @@ export default (router:Router) => {
 
     /**
      * @swagger
-     * /api/auth/refresh:
+     * /auth/refresh:
      *   post:
      *     summary: Exchange a refresh token for a new access token
      *     tags:
@@ -151,7 +151,7 @@ export default (router:Router) => {
 
     /**
      * @swagger
-     * /api/auth/me:
+     * /auth/me:
      *   get:
      *     summary: Get the authenticated user's profile
      *     tags:
