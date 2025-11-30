@@ -107,11 +107,11 @@ export class RoleRepository {
   async getPermissionsForRoles(roles: Role[]): Promise<Permission[]> {
     const roleDocuments = await this.findByNames(roles)
     const permissions = new Set<Permission>()
-    
+
     roleDocuments.forEach((role) => {
       role.permissions.forEach((permission) => permissions.add(permission))
     })
-    
+
     return Array.from(permissions)
   }
 

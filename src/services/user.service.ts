@@ -1,8 +1,5 @@
-import { UserRepository } from "../repositories/user.repository"
-import {
-  MESSAGE_FAILED_TO_FETCH_USER,
-  HTTP_NOT_FOUND,
-} from '../utils/constans'
+import { UserRepository } from '../repositories/user.repository'
+import { MESSAGE_FAILED_TO_FETCH_USER, HTTP_NOT_FOUND } from '../utils/constans'
 import { AppError } from '../utils/app-error'
 
 export class UserService {

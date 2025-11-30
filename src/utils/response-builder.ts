@@ -9,10 +9,10 @@ interface ApiResponse<T = any> {
 
 /**
  * ResponseBuilder - A utility class for building consistent API responses
- * 
+ *
  * This class provides a fluent interface for creating standardized HTTP responses
  * across all controllers, ensuring consistency and reducing code duplication.
- * 
+ *
  * @example
  * return ResponseBuilder.success(res)
  *   .withData(users)

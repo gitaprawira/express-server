@@ -12,5 +12,7 @@ connectDatabase()
 // Start server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`)
-  console.log(`API Documentation available at http://localhost:${port}/api-docs`)
+  console.log(
+    `API Documentation available at http://localhost:${port}/api-docs`,
+  )
 })

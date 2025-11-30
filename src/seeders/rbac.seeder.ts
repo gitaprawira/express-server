@@ -246,7 +246,7 @@ const rolesData = [
  */
 async function seedPermissions(): Promise<void> {
   console.log('Seeding permissions...')
-  
+
   for (const permissionData of permissionsData) {
     const existingPermission = await PermissionModel.findOne({
       name: permissionData.name,
@@ -259,7 +259,7 @@ async function seedPermissions(): Promise<void> {
       console.log(`- Permission already exists: ${permissionData.name}`)
     }
   }
-  
+
   console.log('Permissions seeded successfully!\n')
 }
 
@@ -268,7 +268,7 @@ async function seedPermissions(): Promise<void> {
  */
 async function seedRoles(): Promise<void> {
   console.log('Seeding roles...')
-  
+
   for (const roleData of rolesData) {
     const rolePermissions = rolePermissionsMap.find(
       (rp) => rp.role === roleData.name,
@@ -289,7 +289,7 @@ async function seedRoles(): Promise<void> {
       console.log(`- Updated role: ${roleData.name}`)
     }
   }
-  
+
   console.log('Roles seeded successfully!\n')
 }
 
@@ -318,7 +318,8 @@ export async function seedRBAC(): Promise<void> {
  * Run seeder directly if this file is executed
  */
 if (require.main === module) {
-  const dbUrl = process.env.MONGODB_URL || 'mongodb://localhost:27017/express-server'
+  const dbUrl =
+    process.env.MONGODB_URL || 'mongodb://localhost:27017/express-server'
 
   mongoose
     .connect(dbUrl)

@@ -1,14 +1,12 @@
 import crypto from 'crypto'
 import { Role, Permission, IPermissionCheckResult } from '../types/rbac.types'
 import { RoleRepository } from '../repositories/role.repository'
-import { PermissionRepository } from '../repositories/permission.repository'
 import { UserRepository } from '../repositories/user.repository'
 import { generateSalt, authentication } from '../utils/encryption'
 import { generateAccessToken, generateRefreshToken } from '../utils/jwt'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import {
   MESSAGE_ROLE_NOT_FOUND,
-  MESSAGE_PERMISSION_NOT_FOUND,
   MESSAGE_INSUFFICIENT_PERMISSIONS,
   MESSAGE_NO_ROLES_ASSIGNED,
   MESSAGE_FORBIDDEN,
@@ -35,16 +33,10 @@ import { AppError } from '../utils/app-error'
 
 export class AuthService {
   private roleRepository: RoleRepository
-  private permissionRepository: PermissionRepository
   private userRepository: UserRepository
 
-  constructor(
-    roleRepository: RoleRepository,
-    permissionRepository: PermissionRepository,
-    userRepository: UserRepository,
-  ) {
+  constructor(roleRepository: RoleRepository, userRepository: UserRepository) {
     this.roleRepository = roleRepository
-    this.permissionRepository = permissionRepository
     this.userRepository = userRepository
   }
 
@@ -66,9 +58,8 @@ export class AuthService {
     }
 
     // Get all permissions for user's roles
-    const permissions = await this.roleRepository.getPermissionsForRoles(
-      userRoles,
-    )
+    const permissions =
+      await this.roleRepository.getPermissionsForRoles(userRoles)
 
     if (permissions.includes(requiredPermission)) {
       return { granted: true }
@@ -97,9 +88,8 @@ export class AuthService {
       }
     }
 
-    const permissions = await this.roleRepository.getPermissionsForRoles(
-      userRoles,
-    )
+    const permissions =
+      await this.roleRepository.getPermissionsForRoles(userRoles)
 
     const hasPermission = requiredPermissions.some((permission) =>
       permissions.includes(permission),
@@ -132,9 +122,8 @@ export class AuthService {
       }
     }
 
-    const permissions = await this.roleRepository.getPermissionsForRoles(
-      userRoles,
-    )
+    const permissions =
+      await this.roleRepository.getPermissionsForRoles(userRoles)
 
     const hasAllPermissions = requiredPermissions.every((permission) =>
       permissions.includes(permission),
@@ -319,7 +308,10 @@ export class AuthService {
   ) {
     // Input validation
     if (!email || !password || !username) {
-      throw new AppError(MESSAGE_EMAIL_USERNAME_PASSWORD_REQUIRED, HTTP_BAD_REQUEST)
+      throw new AppError(
+        MESSAGE_EMAIL_USERNAME_PASSWORD_REQUIRED,
+        HTTP_BAD_REQUEST,
+      )
     }
 
     if (
@@ -426,7 +418,10 @@ export class AuthService {
 
     // Verify environment variable exists
     if (!process.env.JWT_REFRESH_SECRET) {
-      throw new AppError(MESSAGE_JWT_REFRESH_SECRET_NOT_CONFIGURED, HTTP_INTERNAL_SERVER_ERROR)
+      throw new AppError(
+        MESSAGE_JWT_REFRESH_SECRET_NOT_CONFIGURED,
+        HTTP_INTERNAL_SERVER_ERROR,
+      )
     }
 
     try {
@@ -457,7 +452,10 @@ export class AuthService {
       return { accessToken }
     } catch (error) {
       if (error instanceof jwt.JsonWebTokenError) {
-        throw new AppError(MESSAGE_INVALID_EXPIRED_REFRESH_TOKEN, HTTP_UNAUTHORIZED)
+        throw new AppError(
+          MESSAGE_INVALID_EXPIRED_REFRESH_TOKEN,
+          HTTP_UNAUTHORIZED,
+        )
       }
       throw error
     }

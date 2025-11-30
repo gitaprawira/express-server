@@ -77,11 +77,9 @@ export class PermissionRepository {
       isActive: boolean
     }>,
   ): Promise<IPermission | null> {
-    return await PermissionModel.findOneAndUpdate(
-      { name },
-      updateData,
-      { new: true },
-    ).exec()
+    return await PermissionModel.findOneAndUpdate({ name }, updateData, {
+      new: true,
+    }).exec()
   }
 
   /**

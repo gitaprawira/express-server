@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from 'express'
 import { Role, Permission } from '../types/rbac.types'
 import { AuthService } from '../services/auth.service'
 import { RoleRepository } from '../repositories/role.repository'
-import { PermissionRepository } from '../repositories/permission.repository'
 import { UserRepository } from '../repositories/user.repository'
 import UserModel, { IUser } from '../models/user.model'
 import jwt, { JwtPayload } from 'jsonwebtoken'
@@ -30,13 +29,8 @@ declare global {
 
 // Initialize services (singleton pattern for efficiency)
 const roleRepository = new RoleRepository()
-const permissionRepository = new PermissionRepository()
 const userRepository = new UserRepository()
-const authorizationService = new AuthService(
-  roleRepository,
-  permissionRepository,
-  userRepository,
-)
+const authorizationService = new AuthService(roleRepository, userRepository)
 
 /**
  * Authentication Middleware
@@ -91,7 +85,7 @@ export const isAuthenticated = async (
     return next()
   } catch (error) {
     console.error(LOG_AUTH_MIDDLEWARE_ERROR, error)
-    
+
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(HTTP_UNAUTHORIZED).json({
         success: false,

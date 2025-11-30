@@ -19,7 +19,7 @@ export const connectDatabase = async (): Promise<void> => {
   }
 }
 
-/** 
+/**
  * Disconnect from MongoDB
  */
 export const disconnectDatabase = async (): Promise<void> => {

@@ -36,11 +36,7 @@ export class RoleService {
   /**
    * Create a new role
    */
-  async createRole(
-    name: Role,
-    description: string,
-    permissions: Permission[],
-  ) {
+  async createRole(name: Role, description: string, permissions: Permission[]) {
     const existingRole = await this.roleRepository.findByName(name)
     if (existingRole) {
       throw new AppError(MESSAGE_ROLE_ALREADY_EXISTS, HTTP_BAD_REQUEST)

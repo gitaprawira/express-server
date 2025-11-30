@@ -358,21 +358,31 @@ import { requirePermission, requireRole } from './middlewares/rbac.middleware'
 import { Permission, Role } from './types/rbac.types'
 
 // Require specific permission
-router.get('/users', isAuthenticated, requirePermission(Permission.USER_LIST), controller.getAllUsers)
+router.get(
+  '/users',
+  isAuthenticated,
+  requirePermission(Permission.USER_LIST),
+  controller.getAllUsers,
+)
 
 // Require specific role
-router.delete('/users/:id', isAuthenticated, requireRole(Role.ADMIN), controller.deleteUser)
+router.delete(
+  '/users/:id',
+  isAuthenticated,
+  requireRole(Role.ADMIN),
+  controller.deleteUser,
+)
 ```
 
 ### Available Roles & Permissions
 
-| Role | Description | Key Permissions |
-|------|-------------|-----------------|
-| **super_admin** | Full system access | All permissions |
-| **admin** | User management | User CRUD, Role read |
-| **manager** | Limited user management | User read/update/list |
-| **user** | Self management | Self read/update |
-| **guest** | Read-only | Self read only |
+| Role            | Description             | Key Permissions       |
+| --------------- | ----------------------- | --------------------- |
+| **super_admin** | Full system access      | All permissions       |
+| **admin**       | User management         | User CRUD, Role read  |
+| **manager**     | Limited user management | User read/update/list |
+| **user**        | Self management         | Self read/update      |
+| **guest**       | Read-only               | Self read only        |
 
 ### Middleware Examples
 
