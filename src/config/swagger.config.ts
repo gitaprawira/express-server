@@ -7,16 +7,16 @@ const swaggerOptions: swaggerJsdoc.Options = {
   swaggerDefinition: {
     openapi: '3.0.0',
     info: {
-      title: 'express-server API Documentation',
+      title: 'express-api API Documentation',
       version: '1.0.0',
-      description: 'API documentation for the express-server application',
+      description: 'API documentation for the express-api application',
       contact: {
         name: 'github.com/gitaprawira',
       },
     },
     servers: [
       {
-        url: process.env.API_URL || 'http://localhost:8080',
+        url: process.env.API_URL || 'http://localhost:3000',
         description: 'Development server',
       },
     ],

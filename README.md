@@ -11,7 +11,15 @@ A robust and scalable boilerplate for building RESTful APIs using Node.js, Expre
 - **TypeScript Ready**: Full TypeScript support for type safety and better developer experience.
 - **Express.js Server**: Fast and minimalist web framework for Node.js.
 - **MongoDB Integration**: Uses Mongoose for elegant MongoDB object modeling.
+- **Role-Based Access Control (RBAC)**: Comprehensive permission system with 5 roles and 19 granular permissions.
+- **JWT Authentication**: Secure authentication with access and refresh tokens.
+- **Swagger/OpenAPI Documentation**: Interactive API documentation at `/api-docs`.
 - **Environment Variables**: Centralized configuration using `.env` files.
+- **Error Handling**: Global error handler with custom error classes.
+- **Repository Pattern**: Clean architecture with separation of concerns.
+- **Middleware System**: Authentication, authorization, and error handling middlewares.
+- **Docker Support**: Containerized deployment with Docker Compose.
+- **Database Seeding**: Quick setup with RBAC data seeder.
 - **Structured Logging**: Pre-configured for clear and informative logs.
 - **Scalable Architecture**: Organized folder structure to keep your code maintainable.
 
@@ -44,7 +52,7 @@ Follow these steps to get your development environment set up and running.
 ### 1. Clone the repository
 
 ```bash
-git clone [https://github.com/gitaprawira/express-server](https://github.com/gitaprawira/express-server)
+git clone https://github.com/gitaprawira/express-server
 cd express-server
 ```
 
@@ -67,10 +75,24 @@ cp .env.example .env
 Now, open the .env file and update the variables with your configuration, especially your MongoDB connection string and server port.
 
 ```.env
-# .env
+# Database Configuration
 MONGODB_URL=mongodb://localhost:27017/soloware_pos
+
+# Server Configuration
 PORT=8080
+
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+JWT_REFRESH_SECRET=your-super-secret-refresh-key-change-this-in-production
+
+# Password Encryption (Optional)
+PWS_SECRET=your-password-encryption-secret
+
+# Node Environment
+NODE_ENV=development
 ```
+
+> **🔐 Security Note**: Never commit your `.env` file or share your secrets. Use strong, randomly generated secrets in production.
 
 ---
 
@@ -100,9 +122,58 @@ npm start
 
 The server should now be running on the port you specified in your .env file (e.g., <http://localhost:8080>).
 
-- API Document endpoints
+---
 
-  swagger-ui Endpoint : [Swagger UI endpoint](http://localhost:8080/api-docs)
+## API Documentation
+
+Once the server is running, you can access the interactive Swagger API documentation:
+
+- **Swagger UI**: [http://localhost:8080/api-docs](http://localhost:8080/api-docs)
+- **Health Check**: [http://localhost:8080/health](http://localhost:8080/health)
+- **API Base URL**: [http://localhost:8080/api](http://localhost:8080/api)
+
+### Quick Start Guide
+
+1. **Seed the database** with default roles and permissions:
+
+```bash
+npm run seed:rbac
+```
+
+2. **Create a test admin user** via API:
+
+```bash
+curl -X POST http://localhost:8080/api/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@example.com",
+    "password": "Admin123!",
+    "username": "admin",
+    "firstname": "Admin",
+    "lastname": "User",
+    "roles": ["admin"]
+  }'
+```
+
+3. **Login to get access token**:
+
+```bash
+curl -X POST http://localhost:8080/api/auth/signin \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@example.com",
+    "password": "Admin123!"
+  }'
+```
+
+4. **Use the token** to access protected endpoints:
+
+```bash
+curl -X GET http://localhost:8080/api/users \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+---
 
 ### TypeScript + Node
 
@@ -163,23 +234,59 @@ The folder structure of this app is explained below:
 ```text
 ├── dist/                     # Compiled JavaScript output from TypeScript
 ├── node_modules/             # Project dependencies
+├── docs/                     # Documentation files
+│   ├── RBAC_DOCUMENTATION.md # Comprehensive RBAC documentation
+│   └── RBAC_QUICKSTART.md    # Quick reference for RBAC
 ├── src/                      # Main source code directory
 │   ├── config/               # Environment variables, DB connection, Swagger config
-│   ├── controllers/          # Entry point for Request (HTTP layer)
-│   ├── middlewares/          # Custom Express middleware (e.g., auth, logging)
-│   ├── models/               # Mongoose schemas and models for MongoDB
-│   ├── routes/               # Defines API routes and connects them to controllers
-│   ├── repositories/         # Data Access (The interface to Mongoose)
-│   ├── services/             # Business Logic (The "Brain")
-│   ├── utils/                # Reusable utility functions (e.g., error handlers)
-│   ├── app.ts                # Express App setup
-│   └── server.ts             # Main server entry point (configures and starts Express)
-├── .env                      # Environment variables (ignored by Git)
-├── .env.example              # Example template for environment variables
-├── .gitignore                # Specifies files for Git to ignore
-├── package.json              # Project metadata and scripts
-├── tsconfig.json             # TypeScript compiler options
-├── pull_request_template.md  # Template for creating pull request
+│   │   ├── database.config.ts
+│   │   └── swagger.config.ts
+│   ├── controllers/          # Request handlers (HTTP layer)
+│   │   ├── auth.controller.ts
+│   │   ├── role.controller.ts
+│   │   └── user.controller.ts
+│   ├── middlewares/          # Custom Express middleware
+│   │   ├── auth.middleware.ts      # Authentication & RBAC middleware
+│   │   └── error-handler.middleware.ts
+│   ├── models/               # Mongoose schemas and models
+│   │   ├── permission.model.ts
+│   │   ├── role.model.ts
+│   │   └── user.model.ts
+│   ├── routes/               # API route definitions
+│   │   ├── auth.route.ts
+│   │   ├── role.route.ts
+│   │   ├── user.route.ts
+│   │   └── index.ts
+│   ├── repositories/         # Data access layer (Repository Pattern)
+│   │   ├── permission.repository.ts
+│   │   ├── role.repository.ts
+│   │   └── user.repository.ts
+│   ├── services/             # Business logic layer
+│   │   ├── auth.service.ts
+│   │   ├── role.service.ts
+│   │   └── user.service.ts
+│   ├── seeders/              # Database seeders
+│   │   └── rbac.seeder.ts
+│   ├── types/                # TypeScript type definitions
+│   │   └── rbac.types.ts
+│   ├── utils/                # Utility functions and helpers
+│   │   ├── app-error.ts           # Custom error class
+│   │   ├── catch-async.ts         # Async error handler wrapper
+│   │   ├── constans.ts            # Application constants
+│   │   ├── encryption.ts          # Password encryption utilities
+│   │   ├── jwt.ts                 # JWT token utilities
+│   │   └── response-builder.ts    # Standardized API responses
+│   ├── app.ts                # Express application setup
+│   └── server.ts             # Server entry point
+├── .env                      # Environment variables (not in git)
+├── .env.example              # Environment variables template
+├── .gitignore                # Git ignore configuration
+├── docker-compose.yml        # Docker Compose configuration
+├── dockerfile                # Docker container configuration
+├── nodemon.json              # Nodemon configuration for development
+├── package.json              # Project dependencies and scripts
+├── prettier.config.ts        # Code formatting configuration
+├── tsconfig.json             # TypeScript compiler configuration
 └── README.md                 # Project documentation
 ```
 
@@ -208,12 +315,14 @@ The folder structure of this app is explained below:
 All the different build steps are orchestrated via [npm scripts](https://docs.npmjs.com/misc/scripts).
 Npm scripts basically allow us to call (and chain) terminal commands via npm.
 
-| Npm Script | Description                                                                           |
-| ---------- | ------------------------------------------------------------------------------------- |
-| `dev`      | Runs full build before starting all watch tasks. Can be invoked with `npm run dev`    |
-| `build`    | Rund Build and replacing files into dist/ folder. Can be invoked with `npm run build` |
-| `start`    | Runs full build and runs node on dist/index.js. Can be invoked with `npm start`       |
-| `test`     | Runs build and run tests using mocha                                                  |
+| Npm Script   | Description                                                                                |
+| ------------ | ------------------------------------------------------------------------------------------ |
+| `dev`        | Runs development server with hot reload using nodemon. Can be invoked with `npm run dev`   |
+| `build`      | Compiles TypeScript to JavaScript in the dist/ folder. Can be invoked with `npm run build` |
+| `start`      | Runs the compiled production build from dist/. Can be invoked with `npm start`             |
+| `seed:rbac`  | Seeds the database with default roles and permissions. Can be invoked with `npm run seed:rbac` |
+| `db:seed`    | Alias for seed:rbac. Can be invoked with `npm run db:seed`                                |
+| `test`       | Runs test suite (if configured)                                                            |
 
 ### Using the debugger in VS Code
 
@@ -238,6 +347,66 @@ Press `F5` in VS Code, it looks for a top level `.vscode` folder with a `launch.
 
 This project uses Swagger (OpenAPI) to generate live, interactive API documentation. This allows developers to easily visualize and interact with the API's endpoints without having to read through the source code.
 The documentation is automatically generated from JSDoc comments written directly above the route definitions in the code.
+
+### API Response Format
+
+All API responses follow a consistent structure:
+
+**Success Response:**
+
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "data": {
+    // Response data here
+  },
+  "errorMessage": null
+}
+```
+
+**Error Response:**
+
+```json
+{
+  "success": false,
+  "statusCode": 400,
+  "data": null,
+  "errorMessage": "Error message here"
+}
+```
+
+**Authentication Response:**
+
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "data": {
+    "user": {
+      "id": "...",
+      "email": "user@example.com",
+      "username": "johndoe",
+      "roles": ["user"]
+    },
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refreshToken": "dGhpcy1pcy1hLWZha2UtcmVmcmVzaC10b2tlbg=="
+  },
+  "errorMessage": null
+}
+```
+
+### HTTP Status Codes
+
+| Code | Description                               |
+|------|-------------------------------------------|
+| 200  | OK - Request successful                   |
+| 201  | Created - Resource created                |
+| 400  | Bad Request - Invalid input               |
+| 401  | Unauthorized - Authentication required    |
+| 403  | Forbidden - Insufficient permissions      |
+| 404  | Not Found - Resource not found            |
+| 500  | Internal Server Error                     |
 
 ### How to Document New Endpoints
 
@@ -354,7 +523,7 @@ POST /api/auth/signup
 3.**Protect Routes**:
 
 ```typescript
-import { requirePermission, requireRole } from './middlewares/rbac.middleware'
+import { requirePermission, requireRole } from './middlewares/auth.middleware'
 import { Permission, Role } from './types/rbac.types'
 
 // Require specific permission
@@ -376,13 +545,48 @@ router.delete(
 
 ### Available Roles & Permissions
 
-| Role            | Description             | Key Permissions       |
-| --------------- | ----------------------- | --------------------- |
-| **super_admin** | Full system access      | All permissions       |
-| **admin**       | User management         | User CRUD, Role read  |
-| **manager**     | Limited user management | User read/update/list |
-| **user**        | Self management         | Self read/update      |
-| **guest**       | Read-only               | Self read only        |
+#### Roles Overview
+
+| Role            | Description                      | Key Permissions                                    |
+| --------------- | -------------------------------- | -------------------------------------------------- |
+| **super_admin** | Full system access               | All 19 permissions (complete system control)       |
+| **admin**       | User and role management         | User CRUD, Role read/list                          |
+| **manager**     | Limited user management          | User read/update/list                              |
+| **user**        | Standard user with self-access   | Self read/update                                   |
+| **guest**       | Read-only access                 | Self read only                                     |
+
+#### All Available Permissions
+
+**User Permissions:**
+
+- `user:create` - Create new users
+- `user:read` - Read any user's information
+- `user:update` - Update any user's information
+- `user:delete` - Delete users
+- `user:list` - List all users
+
+**Role Permissions:**
+
+- `role:create` - Create new roles
+- `role:read` - Read role information
+- `role:update` - Update role information
+- `role:delete` - Delete roles
+- `role:list` - List all roles
+- `role:assign` - Assign roles to users
+
+**Permission Permissions:**
+
+- `permission:create` - Create new permissions
+- `permission:read` - Read permission information
+- `permission:update` - Update permission information
+- `permission:delete` - Delete permissions
+- `permission:list` - List all permissions
+- `permission:assign` - Assign permissions to roles
+
+**Self Permissions:**
+
+- `self:read` - Read own user information
+- `self:update` - Update own user information
 
 ### Middleware Examples
 
@@ -416,18 +620,76 @@ requireOwnershipOrPermission('userId', Permission.USER_UPDATE)
 
 ### RBAC API Endpoints
 
-#### Roles Management
+#### Authentication Endpoints
 
-- `GET /api/roles` - List all roles (requires ROLE_LIST permission)
-- `GET /api/roles/:name` - Get role details (requires ROLE_READ permission)
+- `POST /api/auth/signup` - Register a new user with optional roles
+  - Request body: `{ email, password, username, firstname, lastname, image?, roles? }`
+  - Response: User object with access/refresh tokens
+
+- `POST /api/auth/signin` - Login with email and password
+  - Request body: `{ email, password }`
+  - Response: User object with access/refresh tokens
+
+- `POST /api/auth/signout` - Logout and invalidate refresh token
+  - Request body: `{ refreshToken }`
+  - Response: Success message
+
+- `POST /api/auth/refresh` - Refresh access token
+  - Cookie: `refreshToken` (httpOnly)
+  - Response: New access token
+
+- `GET /api/auth/me` - Get authenticated user profile
+  - Requires: Bearer token
+  - Response: User object with roles
+
+#### User Management Endpoints
+
+- `GET /api/users` - List all users (requires `USER_LIST` permission)
+  - Requires: Bearer token + `USER_LIST` permission
+  - Query params: `page`, `limit`
+  - Response: Paginated user list
+
+- `GET /api/users/:id` - Get user by ID (requires `USER_READ` permission or ownership)
+  - Requires: Bearer token + (`USER_READ` permission OR user is owner)
+  - Response: User object
+
+- `DELETE /api/users/:id` - Delete user (Admin only)
+  - Requires: Bearer token + (`SUPER_ADMIN` OR `ADMIN` role) + `USER_DELETE` permission
+  - Response: Success message
+
+#### Role Management Endpoints
+
+- `GET /api/roles` - List all roles (requires `ROLE_LIST` permission)
+  - Requires: Bearer token + `ROLE_LIST` permission
+  - Response: Array of role objects
+
+- `GET /api/roles/:name` - Get role details (requires `ROLE_READ` permission)
+  - Requires: Bearer token + `ROLE_READ` permission
+  - Response: Role object with permissions
+
 - `POST /api/roles` - Create new role (Super Admin only)
+  - Requires: Bearer token + `SUPER_ADMIN` role + `ROLE_CREATE` permission
+  - Request body: `{ name, description, permissions }`
+  - Response: Created role object
+
 - `PUT /api/roles/:name/permissions` - Update role permissions (Super Admin only)
+  - Requires: Bearer token + `SUPER_ADMIN` role + `PERMISSION_ASSIGN` permission
+  - Request body: `{ permissions }` (replaces all permissions)
+  - Response: Updated role object
+
+- `POST /api/roles/:name/permissions/add` - Add permissions to role (Super Admin only)
+  - Requires: Bearer token + `SUPER_ADMIN` role + `PERMISSION_ASSIGN` permission
+  - Request body: `{ permissions }` (adds to existing)
+  - Response: Updated role object
+
+- `POST /api/roles/:name/permissions/remove` - Remove permissions from role (Super Admin only)
+  - Requires: Bearer token + `SUPER_ADMIN` role + `PERMISSION_ASSIGN` permission
+  - Request body: `{ permissions }` (removes specified)
+  - Response: Updated role object
+
 - `DELETE /api/roles/:name` - Delete role (Super Admin only)
-
-#### User Authentication with Roles
-
-- `POST /api/auth/signup` - Register with optional roles parameter
-- `POST /api/auth/signin` - Login (returns user with roles)
+  - Requires: Bearer token + `SUPER_ADMIN` role + `ROLE_DELETE` permission
+  - Response: Success message
 
 ## Common Issues
 

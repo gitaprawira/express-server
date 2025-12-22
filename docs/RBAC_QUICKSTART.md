@@ -13,7 +13,7 @@ npm install
 Create a `.env` file:
 
 ```env
-MONGODB_URL=mongodb://localhost:27017/express-server
+MONGODB_URL=mongodb://localhost:27017/express-api
 JWT_SECRET=your-secret-key
 JWT_REFRESH_SECRET=your-refresh-secret-key
 ```
@@ -221,11 +221,10 @@ src/
 │   ├── role.repository.ts     # Role data access
 │   └── permission.repository.ts # Permission data access
 ├── services/
-│   ├── authorization.service.ts # Authorization logic
+│   ├── auth.service.ts         # Authorization logic
 │   └── role.service.ts         # Role management
 ├── middlewares/
-│   ├── auth.middleware.ts      # Authentication
-│   └── rbac.middleware.ts      # RBAC authorization
+│   └── auth.middleware.ts      # RBAC & Authorization
 ├── controllers/
 │   └── role.controller.ts      # Role endpoints
 ├── routes/
@@ -250,7 +249,7 @@ const testUser = {
 ### Test Permission Check
 
 ```typescript
-const hasPermission = await authorizationService.hasPermission(
+const hasPermission = await authService.hasPermission(
   user.roles,
   Permission.USER_READ
 )
@@ -259,7 +258,7 @@ const hasPermission = await authorizationService.hasPermission(
 ### Test Role Check
 
 ```typescript
-const hasRole = await authorizationService.hasRole(
+const hasRole = await authService.hasRole(
   user.roles,
   Role.ADMIN
 )

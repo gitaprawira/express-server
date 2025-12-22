@@ -25,7 +25,7 @@ export default (router: Router) => {
 
   /**
    * @swagger
-   * /roles:
+   * /api/roles:
    *   get:
    *     summary: Get all roles
    *     description: Retrieve a list of all roles with their permissions. Requires ROLE_LIST permission.
@@ -65,7 +65,7 @@ export default (router: Router) => {
 
   /**
    * @swagger
-   * /roles/{name}:
+   * /api/roles/{name}:
    *   get:
    *     summary: Get role by name
    *     description: Retrieve details of a specific role including its permissions. Requires ROLE_READ permission.
@@ -104,7 +104,7 @@ export default (router: Router) => {
 
   /**
    * @swagger
-   * /roles:
+   * /api/roles:
    *   post:
    *     summary: Create a new role (Super Admin only)
    *     description: Create a new role with specified permissions. Requires SUPER_ADMIN role and ROLE_CREATE permission.
@@ -167,7 +167,7 @@ export default (router: Router) => {
 
   /**
    * @swagger
-   * /roles/{name}/permissions:
+   * /api/roles/{name}/permissions:
    *   put:
    *     summary: Update role permissions (Super Admin only)
    *     description: Replace all permissions for a role. Requires SUPER_ADMIN role and PERMISSION_ASSIGN permission.
@@ -233,7 +233,7 @@ export default (router: Router) => {
 
   /**
    * @swagger
-   * /roles/{name}/permissions/add:
+   * /api/roles/{name}/permissions/add:
    *   post:
    *     summary: Add permissions to role (Super Admin only)
    *     description: Add additional permissions to an existing role without removing current ones. Requires SUPER_ADMIN role and PERMISSION_ASSIGN permission.
@@ -280,7 +280,7 @@ export default (router: Router) => {
 
   /**
    * @swagger
-   * /roles/{name}/permissions/remove:
+   * /api/roles/{name}/permissions/remove:
    *   post:
    *     summary: Remove permissions from role (Super Admin only)
    *     description: Remove specific permissions from a role. Requires SUPER_ADMIN role and PERMISSION_ASSIGN permission.
@@ -327,7 +327,7 @@ export default (router: Router) => {
 
   /**
    * @swagger
-   * /roles/{name}:
+   * /api/roles/{name}:
    *   delete:
    *     summary: Delete a role (Super Admin only)
    *     description: Soft delete a role (marks as inactive). Requires SUPER_ADMIN role and ROLE_DELETE permission.

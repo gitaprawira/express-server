@@ -40,7 +40,7 @@ The RBAC implementation follows a layered architecture:
 ### 1. Single Responsibility Principle (SRP)
 
 - Each class/module has one reason to change
-- **AuthorizationService**: Only handles authorization logic
+- **AuthService**: Only handles authorization logic
 - **RoleRepository**: Only handles role database operations
 - **PermissionRepository**: Only handles permission database operations
 - **RoleService**: Only handles role business logic
@@ -139,12 +139,12 @@ class PermissionRepository {
 
 ### 4. Services
 
-#### AuthorizationService (`src/services/authorization.service.ts`)
+#### AuthService (`src/services/auth.service.ts`)
 
 Centralized authorization logic:
 
 ```typescript
-class AuthorizationService {
+class AuthService {
   hasPermission(userRoles: Role[], permission: Permission): Promise<IPermissionCheckResult>
   hasAnyPermission(userRoles: Role[], permissions: Permission[]): Promise<IPermissionCheckResult>
   hasAllPermissions(userRoles: Role[], permissions: Permission[]): Promise<IPermissionCheckResult>
@@ -168,7 +168,7 @@ class RoleService {
 }
 ```
 
-### 5. Middleware (`src/middlewares/rbac.middleware.ts`)
+### 5. Middleware (`src/middlewares/auth.middleware.ts`)
 
 Flexible middleware factories for route protection:
 
@@ -347,7 +347,7 @@ router.get('/users/:id',
 ### 1. Unit Tests
 
 ```typescript
-describe('AuthorizationService', () => {
+describe('AuthService', () => {
   it('should grant permission when user has required role', async () => {
     const result = await authService.hasPermission(
       [Role.ADMIN], 
@@ -376,7 +376,7 @@ describe('User Routes RBAC', () => {
 Ensure these are set in your `.env`:
 
 ```env
-MONGODB_URL=mongodb://localhost:27017/express-server
+MONGODB_URL=mongodb://localhost:27017/express-api
 JWT_SECRET=your-secret-key
 JWT_REFRESH_SECRET=your-refresh-secret-key
 ```
@@ -408,7 +408,7 @@ JWT_REFRESH_SECRET=your-refresh-secret-key
 
 ### Custom Authorization Logic
 
-Create new middleware in `rbac.middleware.ts`:
+Create new middleware in `auth.middleware.ts`:
 
 ```typescript
 export const requireCustomCheck = (param: string) => {

@@ -3,12 +3,10 @@ import { Role, Permission } from '../types/rbac.types'
 import { AuthService } from '../services/auth.service'
 import { RoleRepository } from '../repositories/role.repository'
 import { UserRepository } from '../repositories/user.repository'
+import { ResponseBuilder } from '../utils/response-builder'
 import UserModel, { IUser } from '../models/user.model'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import {
-  HTTP_BAD_REQUEST,
-  HTTP_FORBIDDEN,
-  HTTP_UNAUTHORIZED,
   MESSAGE_UNAUTHORIZED,
   MESSAGE_INVALID_TOKEN,
   MESSAGE_SERVER_CONFIG_ERROR,
@@ -30,7 +28,7 @@ declare global {
 // Initialize services (singleton pattern for efficiency)
 const roleRepository = new RoleRepository()
 const userRepository = new UserRepository()
-const authorizationService = new AuthService(roleRepository, userRepository)
+const authService = new AuthService(roleRepository, userRepository)
 
 /**
  * Authentication Middleware
@@ -53,19 +51,19 @@ export const isAuthenticated = async (
     }
 
     if (!token) {
-      return res.status(HTTP_UNAUTHORIZED).json({
-        success: false,
-        message: MESSAGE_UNAUTHORIZED,
-      })
+      return ResponseBuilder.error(res)
+        .withStatusCode(401)
+        .withMessage(MESSAGE_UNAUTHORIZED)
+        .send()
     }
 
     // Verify JWT_SECRET is configured
     if (!process.env.JWT_SECRET) {
       console.error(MESSAGE_JWT_SECRET_NOT_CONFIGURED)
-      return res.status(HTTP_BAD_REQUEST).json({
-        success: false,
-        message: MESSAGE_SERVER_CONFIG_ERROR,
-      })
+      return ResponseBuilder.error(res)
+        .withStatusCode(400)
+        .withMessage(MESSAGE_SERVER_CONFIG_ERROR)
+        .send()
     }
 
     // Verify token using ACCESS token secret (not refresh token secret)
@@ -74,10 +72,10 @@ export const isAuthenticated = async (
     // Find user by ID from token
     const currentUser = await UserModel.findById(decoded.id)
     if (!currentUser) {
-      return res.status(HTTP_UNAUTHORIZED).json({
-        success: false,
-        message: MESSAGE_UNAUTHORIZED,
-      })
+      return ResponseBuilder.error(res)
+        .withStatusCode(401)
+        .withMessage(MESSAGE_UNAUTHORIZED)
+        .send()
     }
 
     // Attach user to request object
@@ -85,18 +83,18 @@ export const isAuthenticated = async (
     return next()
   } catch (error) {
     console.error(LOG_AUTH_MIDDLEWARE_ERROR, error)
-
+    
     if (error instanceof jwt.JsonWebTokenError) {
-      return res.status(HTTP_UNAUTHORIZED).json({
-        success: false,
-        message: MESSAGE_INVALID_TOKEN,
-      })
+      return ResponseBuilder.error(res)
+        .withStatusCode(401)
+        .withMessage(MESSAGE_INVALID_TOKEN)
+        .send()
     }
 
-    return res.status(HTTP_BAD_REQUEST).json({
-      success: false,
-      message: MESSAGE_AUTHENTICATION_FAILED,
-    })
+    return ResponseBuilder.error(res)
+      .withStatusCode(400)
+      .withMessage(MESSAGE_AUTHENTICATION_FAILED)
+      .send()
   }
 }
 
@@ -108,32 +106,32 @@ export const requirePermission = (requiredPermission: Permission) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (!req.user) {
-        return res.status(HTTP_UNAUTHORIZED).json({
-          success: false,
-          message: MESSAGE_UNAUTHORIZED,
-        })
+        return ResponseBuilder.error(res)
+        .withStatusCode(401)
+        .withMessage(MESSAGE_UNAUTHORIZED)
+        .send()
       }
 
       const userRoles = req.user.roles || []
-      const result = await authorizationService.hasPermission(
+      const result = await authService.hasPermission(
         userRoles,
         requiredPermission,
       )
 
       if (!result.granted) {
-        return res.status(HTTP_FORBIDDEN).json({
-          success: false,
-          message: result.reason || MESSAGE_INSUFFICIENT_PERMISSIONS,
-        })
+        return ResponseBuilder.error(res)
+          .withStatusCode(403)
+          .withMessage(result.reason || MESSAGE_INSUFFICIENT_PERMISSIONS)
+          .send()
       }
 
       return next()
     } catch (error) {
       console.error(LOG_AUTHORIZATION_ERROR, error)
-      return res.status(HTTP_FORBIDDEN).json({
-        success: false,
-        message: MESSAGE_INSUFFICIENT_PERMISSIONS,
-      })
+      return ResponseBuilder.error(res)
+        .withStatusCode(403)
+        .withMessage(MESSAGE_INSUFFICIENT_PERMISSIONS)
+        .send()
     }
   }
 }
@@ -146,32 +144,32 @@ export const requireAnyPermission = (requiredPermissions: Permission[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (!req.user) {
-        return res.status(HTTP_UNAUTHORIZED).json({
-          success: false,
-          message: MESSAGE_UNAUTHORIZED,
-        })
+        return ResponseBuilder.error(res)
+        .withStatusCode(401)
+        .withMessage(MESSAGE_UNAUTHORIZED)
+        .send()
       }
 
       const userRoles = req.user.roles || []
-      const result = await authorizationService.hasAnyPermission(
+      const result = await authService.hasAnyPermission(
         userRoles,
         requiredPermissions,
       )
 
       if (!result.granted) {
-        return res.status(HTTP_FORBIDDEN).json({
-          success: false,
-          message: result.reason || MESSAGE_INSUFFICIENT_PERMISSIONS,
-        })
+        return ResponseBuilder.error(res)
+          .withStatusCode(403)
+          .withMessage(result.reason || MESSAGE_INSUFFICIENT_PERMISSIONS)
+          .send()
       }
 
       return next()
     } catch (error) {
       console.error(LOG_AUTHORIZATION_ERROR, error)
-      return res.status(HTTP_FORBIDDEN).json({
-        success: false,
-        message: MESSAGE_INSUFFICIENT_PERMISSIONS,
-      })
+      return ResponseBuilder.error(res)
+        .withStatusCode(403)
+        .withMessage(MESSAGE_INSUFFICIENT_PERMISSIONS)
+        .send()
     }
   }
 }
@@ -184,32 +182,32 @@ export const requireAllPermissions = (requiredPermissions: Permission[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (!req.user) {
-        return res.status(HTTP_UNAUTHORIZED).json({
-          success: false,
-          message: MESSAGE_UNAUTHORIZED,
-        })
+        return ResponseBuilder.error(res)
+        .withStatusCode(401)
+        .withMessage(MESSAGE_UNAUTHORIZED)
+        .send()
       }
 
       const userRoles = req.user.roles || []
-      const result = await authorizationService.hasAllPermissions(
+      const result = await authService.hasAllPermissions(
         userRoles,
         requiredPermissions,
       )
 
       if (!result.granted) {
-        return res.status(HTTP_FORBIDDEN).json({
-          success: false,
-          message: result.reason || MESSAGE_INSUFFICIENT_PERMISSIONS,
-        })
+        return ResponseBuilder.error(res)
+          .withStatusCode(403)
+          .withMessage(result.reason || MESSAGE_INSUFFICIENT_PERMISSIONS)
+          .send()
       }
 
       return next()
     } catch (error) {
       console.error(LOG_AUTHORIZATION_ERROR, error)
-      return res.status(HTTP_FORBIDDEN).json({
-        success: false,
-        message: MESSAGE_INSUFFICIENT_PERMISSIONS,
-      })
+      return ResponseBuilder.error(res)
+        .withStatusCode(403)
+        .withMessage(MESSAGE_INSUFFICIENT_PERMISSIONS)
+        .send()
     }
   }
 }
@@ -222,29 +220,29 @@ export const requireRole = (requiredRole: Role) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (!req.user) {
-        return res.status(HTTP_UNAUTHORIZED).json({
-          success: false,
-          message: MESSAGE_UNAUTHORIZED,
-        })
+        return ResponseBuilder.error(res)
+        .withStatusCode(401)
+        .withMessage(MESSAGE_UNAUTHORIZED)
+        .send()
       }
 
       const userRoles = req.user.roles || []
-      const result = await authorizationService.hasRole(userRoles, requiredRole)
+      const result = await authService.hasRole(userRoles, requiredRole)
 
       if (!result.granted) {
-        return res.status(HTTP_FORBIDDEN).json({
-          success: false,
-          message: result.reason || MESSAGE_INSUFFICIENT_PERMISSIONS,
-        })
+        return ResponseBuilder.error(res)
+          .withStatusCode(403)
+          .withMessage(result.reason || MESSAGE_INSUFFICIENT_PERMISSIONS)
+          .send()
       }
 
       return next()
     } catch (error) {
       console.error(LOG_AUTHORIZATION_ERROR, error)
-      return res.status(HTTP_FORBIDDEN).json({
-        success: false,
-        message: MESSAGE_INSUFFICIENT_PERMISSIONS,
-      })
+      return ResponseBuilder.error(res)
+        .withStatusCode(403)
+        .withMessage(MESSAGE_INSUFFICIENT_PERMISSIONS)
+        .send()
     }
   }
 }
@@ -257,32 +255,32 @@ export const requireAnyRole = (requiredRoles: Role[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (!req.user) {
-        return res.status(HTTP_UNAUTHORIZED).json({
-          success: false,
-          message: MESSAGE_UNAUTHORIZED,
-        })
+        return ResponseBuilder.error(res)
+        .withStatusCode(401)
+        .withMessage(MESSAGE_UNAUTHORIZED)
+        .send()
       }
 
       const userRoles = req.user.roles || []
-      const result = await authorizationService.hasAnyRole(
+      const result = await authService.hasAnyRole(
         userRoles,
         requiredRoles,
       )
 
       if (!result.granted) {
-        return res.status(HTTP_FORBIDDEN).json({
-          success: false,
-          message: result.reason || MESSAGE_INSUFFICIENT_PERMISSIONS,
-        })
+        return ResponseBuilder.error(res)
+          .withStatusCode(403)
+          .withMessage(result.reason || MESSAGE_INSUFFICIENT_PERMISSIONS)
+          .send()
       }
 
       return next()
     } catch (error) {
       console.error(LOG_AUTHORIZATION_ERROR, error)
-      return res.status(HTTP_FORBIDDEN).json({
-        success: false,
-        message: MESSAGE_INSUFFICIENT_PERMISSIONS,
-      })
+      return ResponseBuilder.error(res)
+        .withStatusCode(403)
+        .withMessage(MESSAGE_INSUFFICIENT_PERMISSIONS)
+        .send()
     }
   }
 }
@@ -295,10 +293,10 @@ export const requireOwnershipOrAdmin = (resourceIdParam: string = 'id') => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (!req.user) {
-        return res.status(HTTP_UNAUTHORIZED).json({
-          success: false,
-          message: MESSAGE_UNAUTHORIZED,
-        })
+        return ResponseBuilder.error(res)
+        .withStatusCode(401)
+        .withMessage(MESSAGE_UNAUTHORIZED)
+        .send()
       }
 
       const resourceOwnerId = req.params[resourceIdParam]
@@ -306,13 +304,13 @@ export const requireOwnershipOrAdmin = (resourceIdParam: string = 'id') => {
       const userRoles = req.user.roles || []
 
       // Check if user is owner
-      const isOwner = authorizationService.isOwner(userId, resourceOwnerId)
+      const isOwner = authService.isOwner(userId, resourceOwnerId)
       if (isOwner.granted) {
         return next()
       }
 
       // Check if user has admin role
-      const hasAdminRole = await authorizationService.hasAnyRole(userRoles, [
+      const hasAdminRole = await authService.hasAnyRole(userRoles, [
         Role.SUPER_ADMIN,
         Role.ADMIN,
       ])
@@ -320,16 +318,16 @@ export const requireOwnershipOrAdmin = (resourceIdParam: string = 'id') => {
         return next()
       }
 
-      return res.status(HTTP_FORBIDDEN).json({
-        success: false,
-        message: MESSAGE_INSUFFICIENT_PERMISSIONS,
-      })
+      return ResponseBuilder.error(res)
+        .withStatusCode(403)
+        .withMessage(MESSAGE_INSUFFICIENT_PERMISSIONS)
+        .send()
     } catch (error) {
       console.error(LOG_AUTHORIZATION_ERROR, error)
-      return res.status(HTTP_FORBIDDEN).json({
-        success: false,
-        message: MESSAGE_INSUFFICIENT_PERMISSIONS,
-      })
+      return ResponseBuilder.error(res)
+        .withStatusCode(403)
+        .withMessage(MESSAGE_INSUFFICIENT_PERMISSIONS)
+        .send()
     }
   }
 }
@@ -346,10 +344,10 @@ export const requireOwnershipOrPermission = (
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (!req.user) {
-        return res.status(HTTP_UNAUTHORIZED).json({
-          success: false,
-          message: MESSAGE_UNAUTHORIZED,
-        })
+        return ResponseBuilder.error(res)
+        .withStatusCode(401)
+        .withMessage(MESSAGE_UNAUTHORIZED)
+        .send()
       }
 
       const resourceOwnerId = req.params[resourceIdParam]
@@ -357,13 +355,13 @@ export const requireOwnershipOrPermission = (
       const userRoles = req.user.roles || []
 
       // Check if user is owner
-      const isOwner = authorizationService.isOwner(userId, resourceOwnerId)
+      const isOwner = authService.isOwner(userId, resourceOwnerId)
       if (isOwner.granted) {
         return next()
       }
 
       // Check if user has the required permission
-      const hasPermission = await authorizationService.hasPermission(
+      const hasPermission = await authService.hasPermission(
         userRoles,
         permission,
       )
@@ -371,16 +369,16 @@ export const requireOwnershipOrPermission = (
         return next()
       }
 
-      return res.status(HTTP_FORBIDDEN).json({
-        success: false,
-        message: MESSAGE_INSUFFICIENT_PERMISSIONS,
-      })
+      return ResponseBuilder.error(res)
+        .withStatusCode(403)
+        .withMessage(MESSAGE_INSUFFICIENT_PERMISSIONS)
+        .send()
     } catch (error) {
       console.error(LOG_AUTHORIZATION_ERROR, error)
-      return res.status(HTTP_FORBIDDEN).json({
-        success: false,
-        message: MESSAGE_INSUFFICIENT_PERMISSIONS,
-      })
+      return ResponseBuilder.error(res)
+        .withStatusCode(403)
+        .withMessage(MESSAGE_INSUFFICIENT_PERMISSIONS)
+        .send()
     }
   }
 }

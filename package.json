@@ -1,5 +1,5 @@
 {
-  "name": "express-server",
+  "name": "express-api",
   "version": "1.0.0",
   "main": "src/server.ts",
   "scripts": {
@@ -8,6 +8,8 @@
     "start": "npm run build && node dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md,html}\" \"*.{js,ts,json,md,html}\"",
+    "db:install": "docker pull mongodb/mongodb-community-server:latest",
+    "db:start": "docker run --name mongodb-local -p 27017:27017 -d mongodb/mongodb-community-server:latest",
     "seed:rbac": "ts-node src/seeders/rbac.seeder.ts"
   },
   "author": "Soloware",

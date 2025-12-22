@@ -318,8 +318,7 @@ export async function seedRBAC(): Promise<void> {
  * Run seeder directly if this file is executed
  */
 if (require.main === module) {
-  const dbUrl =
-    process.env.MONGODB_URL || 'mongodb://localhost:27017/express-server'
+  const dbUrl = process.env.MONGODB_URL || 'mongodb://localhost:27017/express-api'
 
   mongoose
     .connect(dbUrl)

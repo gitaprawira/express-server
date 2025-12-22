@@ -6,15 +6,16 @@ services:
     build: .
     container_name: server-api
     ports:
-      - "8080:8080"
+      - "8080:3000" # Maps your PC's port 8080 to container's port 3000
     volumes:
       - ./src:/app/src
     environment:
-      - MONGODB_URL=${MONGODB_URL}
-      - PORT=${PORT}
-      - PWD_SECRET=${PWD_SECRET}
-      - JWT_SECRET=${JWT_SECRET}
-      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - MONGODB_URL=mongodb://localhost:27018/express-api
+      - PORT=3000
+      - PWD_SECRET=your_password_secret
+      - API_URL=http://localhost:3000
+      - JWT_SECRET=your_jwt_secret
+      - JWT_REFRESH_SECRET=your_jwt_refresh_secret
     depends_on:
       - database # Tells Docker to start the database before starting the backend
 
@@ -23,14 +24,13 @@ services:
     image: mongo:latest
     container_name: server-db
     ports:
-      - "27017:27017" # Maps your PC's port 27017 (for MongoDB Compass)
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=password
+      - "27018:27017" # Maps your PC's port 27018 to container's 27017 (avoids conflict with local MongoDB on 27017)
     volumes:
       # This saves your database data to a 'named volume' on your PC
       # Your data will persist even if you stop and remove the container
       - server-db-data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=express-api
 
 volumes:
   server-db-data: # Declares the named volume

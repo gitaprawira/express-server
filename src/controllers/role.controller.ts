@@ -5,8 +5,8 @@ import {
   HTTP_CREATED,
   MESSAGE_ROLE_DELETED_SUCCESS,
 } from '../utils/constans'
-import { ResponseBuilder } from '../utils/response-builder'
 import { catchAsync } from '../utils/catch-async'
+import { ResponseBuilder } from '../utils/response-builder'
 
 export class RoleController {
   private roleService: RoleService
