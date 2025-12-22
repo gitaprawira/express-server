@@ -76,7 +76,7 @@ Now, open the .env file and update the variables with your configuration, especi
 
 ```.env
 # Database Configuration
-MONGODB_URL=mongodb://localhost:27017/soloware_pos
+MONGODB_URL=mongodb://localhost:27017/express-api
 
 # Server Configuration
 PORT=8080
