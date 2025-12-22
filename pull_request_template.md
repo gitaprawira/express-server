@@ -2,7 +2,7 @@
 
 ## 📝 Description
 
-*Provide a concise summary of the changes. Link any related issues (e.g., Fixes #123).*
+_Provide a concise summary of the changes. Link any related issues (e.g., Fixes #123)._
 
 ---
 
@@ -32,4 +32,4 @@
 
 ## 📊 Evidence (Optional)
 
-*Paste Swagger screenshots, Postman results, or relevant log snippets here.*
+_Paste Swagger screenshots, Postman results, or relevant log snippets here._

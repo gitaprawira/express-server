@@ -83,7 +83,7 @@ export const isAuthenticated = async (
     return next()
   } catch (error) {
     console.error(LOG_AUTH_MIDDLEWARE_ERROR, error)
-    
+
     if (error instanceof jwt.JsonWebTokenError) {
       return ResponseBuilder.error(res)
         .withStatusCode(401)
@@ -107,9 +107,9 @@ export const requirePermission = (requiredPermission: Permission) => {
     try {
       if (!req.user) {
         return ResponseBuilder.error(res)
-        .withStatusCode(401)
-        .withMessage(MESSAGE_UNAUTHORIZED)
-        .send()
+          .withStatusCode(401)
+          .withMessage(MESSAGE_UNAUTHORIZED)
+          .send()
       }
 
       const userRoles = req.user.roles || []
@@ -145,9 +145,9 @@ export const requireAnyPermission = (requiredPermissions: Permission[]) => {
     try {
       if (!req.user) {
         return ResponseBuilder.error(res)
-        .withStatusCode(401)
-        .withMessage(MESSAGE_UNAUTHORIZED)
-        .send()
+          .withStatusCode(401)
+          .withMessage(MESSAGE_UNAUTHORIZED)
+          .send()
       }
 
       const userRoles = req.user.roles || []
@@ -183,9 +183,9 @@ export const requireAllPermissions = (requiredPermissions: Permission[]) => {
     try {
       if (!req.user) {
         return ResponseBuilder.error(res)
-        .withStatusCode(401)
-        .withMessage(MESSAGE_UNAUTHORIZED)
-        .send()
+          .withStatusCode(401)
+          .withMessage(MESSAGE_UNAUTHORIZED)
+          .send()
       }
 
       const userRoles = req.user.roles || []
@@ -221,9 +221,9 @@ export const requireRole = (requiredRole: Role) => {
     try {
       if (!req.user) {
         return ResponseBuilder.error(res)
-        .withStatusCode(401)
-        .withMessage(MESSAGE_UNAUTHORIZED)
-        .send()
+          .withStatusCode(401)
+          .withMessage(MESSAGE_UNAUTHORIZED)
+          .send()
       }
 
       const userRoles = req.user.roles || []
@@ -256,16 +256,13 @@ export const requireAnyRole = (requiredRoles: Role[]) => {
     try {
       if (!req.user) {
         return ResponseBuilder.error(res)
-        .withStatusCode(401)
-        .withMessage(MESSAGE_UNAUTHORIZED)
-        .send()
+          .withStatusCode(401)
+          .withMessage(MESSAGE_UNAUTHORIZED)
+          .send()
       }
 
       const userRoles = req.user.roles || []
-      const result = await authService.hasAnyRole(
-        userRoles,
-        requiredRoles,
-      )
+      const result = await authService.hasAnyRole(userRoles, requiredRoles)
 
       if (!result.granted) {
         return ResponseBuilder.error(res)
@@ -294,9 +291,9 @@ export const requireOwnershipOrAdmin = (resourceIdParam: string = 'id') => {
     try {
       if (!req.user) {
         return ResponseBuilder.error(res)
-        .withStatusCode(401)
-        .withMessage(MESSAGE_UNAUTHORIZED)
-        .send()
+          .withStatusCode(401)
+          .withMessage(MESSAGE_UNAUTHORIZED)
+          .send()
       }
 
       const resourceOwnerId = req.params[resourceIdParam]
@@ -345,9 +342,9 @@ export const requireOwnershipOrPermission = (
     try {
       if (!req.user) {
         return ResponseBuilder.error(res)
-        .withStatusCode(401)
-        .withMessage(MESSAGE_UNAUTHORIZED)
-        .send()
+          .withStatusCode(401)
+          .withMessage(MESSAGE_UNAUTHORIZED)
+          .send()
       }
 
       const resourceOwnerId = req.params[resourceIdParam]

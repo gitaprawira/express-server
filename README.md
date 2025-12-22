@@ -315,14 +315,14 @@ The folder structure of this app is explained below:
 All the different build steps are orchestrated via [npm scripts](https://docs.npmjs.com/misc/scripts).
 Npm scripts basically allow us to call (and chain) terminal commands via npm.
 
-| Npm Script   | Description                                                                                |
-| ------------ | ------------------------------------------------------------------------------------------ |
-| `dev`        | Runs development server with hot reload using nodemon. Can be invoked with `npm run dev`   |
-| `build`      | Compiles TypeScript to JavaScript in the dist/ folder. Can be invoked with `npm run build` |
-| `start`      | Runs the compiled production build from dist/. Can be invoked with `npm start`             |
-| `seed:rbac`  | Seeds the database with default roles and permissions. Can be invoked with `npm run seed:rbac` |
-| `db:seed`    | Alias for seed:rbac. Can be invoked with `npm run db:seed`                                |
-| `test`       | Runs test suite (if configured)                                                            |
+| Npm Script  | Description                                                                                    |
+| ----------- | ---------------------------------------------------------------------------------------------- |
+| `dev`       | Runs development server with hot reload using nodemon. Can be invoked with `npm run dev`       |
+| `build`     | Compiles TypeScript to JavaScript in the dist/ folder. Can be invoked with `npm run build`     |
+| `start`     | Runs the compiled production build from dist/. Can be invoked with `npm start`                 |
+| `seed:rbac` | Seeds the database with default roles and permissions. Can be invoked with `npm run seed:rbac` |
+| `db:seed`   | Alias for seed:rbac. Can be invoked with `npm run db:seed`                                     |
+| `test`      | Runs test suite (if configured)                                                                |
 
 ### Using the debugger in VS Code
 
@@ -398,15 +398,15 @@ All API responses follow a consistent structure:
 
 ### HTTP Status Codes
 
-| Code | Description                               |
-|------|-------------------------------------------|
-| 200  | OK - Request successful                   |
-| 201  | Created - Resource created                |
-| 400  | Bad Request - Invalid input               |
-| 401  | Unauthorized - Authentication required    |
-| 403  | Forbidden - Insufficient permissions      |
-| 404  | Not Found - Resource not found            |
-| 500  | Internal Server Error                     |
+| Code | Description                            |
+| ---- | -------------------------------------- |
+| 200  | OK - Request successful                |
+| 201  | Created - Resource created             |
+| 400  | Bad Request - Invalid input            |
+| 401  | Unauthorized - Authentication required |
+| 403  | Forbidden - Insufficient permissions   |
+| 404  | Not Found - Resource not found         |
+| 500  | Internal Server Error                  |
 
 ### How to Document New Endpoints
 
@@ -547,13 +547,13 @@ router.delete(
 
 #### Roles Overview
 
-| Role            | Description                      | Key Permissions                                    |
-| --------------- | -------------------------------- | -------------------------------------------------- |
-| **super_admin** | Full system access               | All 19 permissions (complete system control)       |
-| **admin**       | User and role management         | User CRUD, Role read/list                          |
-| **manager**     | Limited user management          | User read/update/list                              |
-| **user**        | Standard user with self-access   | Self read/update                                   |
-| **guest**       | Read-only access                 | Self read only                                     |
+| Role            | Description                    | Key Permissions                              |
+| --------------- | ------------------------------ | -------------------------------------------- |
+| **super_admin** | Full system access             | All 19 permissions (complete system control) |
+| **admin**       | User and role management       | User CRUD, Role read/list                    |
+| **manager**     | Limited user management        | User read/update/list                        |
+| **user**        | Standard user with self-access | Self read/update                             |
+| **guest**       | Read-only access               | Self read only                               |
 
 #### All Available Permissions
 
