@@ -1,14 +1,16 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "nodenext",
-    "baseUrl": "./src",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "rootDir": "./src",
     "outDir": "./dist",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "sourceMap": true,
     "noImplicitAny": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "ignoreDeprecations": "6.0"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.spec.ts", "test", "node_modules"]

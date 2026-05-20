@@ -1,5 +1,9 @@
 import { UserRepository } from '../repositories/user.repository'
-import { MESSAGE_FAILED_TO_FETCH_USER, HTTP_NOT_FOUND } from '../utils/constans'
+import {
+  MESSAGE_FAILED_TO_FETCH_USER,
+  MESSAGE_FAILED_TO_DELETE_USER,
+  HTTP_NOT_FOUND,
+} from '../utils/constans'
 import { AppError } from '../utils/app-error'
 
 export class UserService {
@@ -33,7 +37,7 @@ export class UserService {
   async deleteUser(id: string) {
     const user = await this.userRepository.delete(id)
     if (!user) {
-      throw new AppError(MESSAGE_FAILED_TO_FETCH_USER, HTTP_NOT_FOUND)
+      throw new AppError(MESSAGE_FAILED_TO_DELETE_USER, HTTP_NOT_FOUND)
     }
     return user
   }

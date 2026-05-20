@@ -1,7 +1,5 @@
 import { Router } from 'express'
-import { UserController } from '../controllers/user.controller'
-import { UserService } from '../services/user.service'
-import { UserRepository } from '../repositories/user.repository'
+import { userController } from '../container'
 import {
   isAuthenticated,
   requirePermission,
@@ -11,11 +9,6 @@ import {
 import { Permission, Role } from '../types/rbac.types'
 
 export default (router: Router) => {
-  // Initialize Dependency Injection
-  const userRepository = new UserRepository()
-  const userService = new UserService(userRepository)
-  const userController = new UserController(userService)
-
   /**
    * @swagger
    * tags:
@@ -68,7 +61,6 @@ export default (router: Router) => {
    *         $ref: '#/components/responses/Forbidden'
    *         description: Insufficient permissions (requires USER_LIST permission)
    */
-  // List all users - requires USER_LIST permission
   router.get(
     '/users',
     isAuthenticated,
@@ -122,8 +114,6 @@ export default (router: Router) => {
    *           type: string
    *         description: User ID to delete
    *     responses:
-   *       '204':
-   *         description: User deleted successfully (no content)
    *       '200':
    *         description: User deleted successfully
    *         content:
@@ -142,7 +132,6 @@ export default (router: Router) => {
    *       '404':
    *         $ref: '#/components/responses/NotFound'
    */
-  // Get user by ID - requires USER_READ permission or ownership
   router.get(
     '/users/:id',
     isAuthenticated,
@@ -150,7 +139,6 @@ export default (router: Router) => {
     userController.getUserById,
   )
 
-  // Delete user - requires USER_DELETE permission (admin only)
   router.delete(
     '/users/:id',
     isAuthenticated,
@@ -181,10 +169,10 @@ export default (router: Router) => {
    *         username:
    *           type: string
    *           example: "janedoe"
-   *         firstname:
+   *         firstName:
    *           type: string
    *           example: "Jane"
-   *         lastname:
+   *         lastName:
    *           type: string
    *           example: "Doe"
    *         image:

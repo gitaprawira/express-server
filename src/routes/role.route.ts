@@ -1,21 +1,13 @@
 import { Router } from 'express'
-import { RoleController } from '../controllers/role.controller'
-import { RoleService } from '../services/role.service'
-import { RoleRepository } from '../repositories/role.repository'
+import { roleController } from '../container'
 import {
   isAuthenticated,
   requirePermission,
-  requireRole,
   requireAnyRole,
 } from '../middlewares/auth.middleware'
 import { Permission, Role } from '../types/rbac.types'
 
 export default (router: Router) => {
-  // Initialize Dependency Injection
-  const roleRepository = new RoleRepository()
-  const roleService = new RoleService(roleRepository)
-  const roleController = new RoleController(roleService)
-
   /**
    * @swagger
    * tags:
@@ -201,19 +193,6 @@ export default (router: Router) => {
    *     responses:
    *       '200':
    *         description: Permissions updated successfully
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: object
-   *               properties:
-   *                 success:
-   *                   type: boolean
-   *                   example: true
-   *                 statusCode:
-   *                   type: integer
-   *                   example: 200
-   *                 data:
-   *                   $ref: '#/components/schemas/Role'
    *       '400':
    *         description: Bad request
    *       '401':

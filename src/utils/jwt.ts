@@ -1,19 +1,15 @@
 import jwt from 'jsonwebtoken'
 
-/**
- * Generate JWT Access Token
- */
-export const generateAccessToken = (id: string) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '15m',
-  })
+export const generateAccessToken = (id: string): string => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is not configured')
+  }
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '15m' })
 }
 
-/**
- * Generate JWT Refresh Token
- */
-export const generateRefreshToken = (id: string) => {
-  return jwt.sign({ id }, process.env.JWT_REFRESH_SECRET!, {
-    expiresIn: '1d',
-  })
+export const generateRefreshToken = (id: string): string => {
+  if (!process.env.JWT_REFRESH_SECRET) {
+    throw new Error('JWT_REFRESH_SECRET is not configured')
+  }
+  return jwt.sign({ id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '1d' })
 }

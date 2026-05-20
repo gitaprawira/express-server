@@ -76,7 +76,7 @@ Now, open the .env file and update the variables with your configuration, especi
 
 ```.env
 # Database Configuration
-MONGODB_URL=mongodb://localhost:27017/express-api
+MONGODB_URL=mongodb://localhost:27017/auth-db
 
 # Server Configuration
 PORT=8080

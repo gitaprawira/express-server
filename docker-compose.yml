@@ -10,7 +10,7 @@ services:
     volumes:
       - ./src:/app/src
     environment:
-      - MONGODB_URL=mongodb://localhost:27018/express-api
+      - MONGODB_URL=mongodb://localhost:27018/auth-db
       - PORT=3000
       - PWD_SECRET=your_password_secret
       - API_URL=http://localhost:3000
@@ -30,7 +30,7 @@ services:
       # Your data will persist even if you stop and remove the container
       - server-db-data:/data/db
     environment:
-      - MONGO_INITDB_DATABASE=express-api
+      - MONGO_INITDB_DATABASE=auth-db
 
 volumes:
   server-db-data: # Declares the named volume

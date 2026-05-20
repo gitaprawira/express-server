@@ -1,17 +1,8 @@
 import { Router } from 'express'
-import { AuthController } from '../controllers/auth.controller'
-import { AuthService } from '../services/auth.service'
-import { UserRepository } from '../repositories/user.repository'
-import { RoleRepository } from '../repositories/role.repository'
+import { authController } from '../container'
 import { isAuthenticated } from '../middlewares/auth.middleware'
 
 export default (router: Router) => {
-  // Initialize Dependency Injection
-  const userRepository = new UserRepository()
-  const roleRepository = new RoleRepository()
-  const authService = new AuthService(roleRepository, userRepository)
-  const authController = new AuthController(authService)
-
   /**
    * @swagger
    * tags:

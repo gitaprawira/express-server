@@ -13,7 +13,7 @@ npm install
 Create a `.env` file:
 
 ```env
-MONGODB_URL=mongodb://localhost:27017/express-api
+MONGODB_URL=mongodb://localhost:27017/auth-db
 JWT_SECRET=your-secret-key
 JWT_REFRESH_SECRET=your-refresh-secret-key
 ```

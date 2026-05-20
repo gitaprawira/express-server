@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { AuthService } from '../services/auth.service'
-import { HTTP_OK, MESSAGE_REFRESH_TOKEN_NOT_FOUND } from '../utils/constans'
+import { HTTP_OK, HTTP_CREATED, MESSAGE_REFRESH_TOKEN_NOT_FOUND } from '../utils/constans'
 import { ResponseBuilder } from '../utils/response-builder'
 import { catchAsync } from '../utils/catch-async'
 import { AppError } from '../utils/app-error'
@@ -38,18 +38,18 @@ export class AuthController {
     async (req: Request, res: Response, next: NextFunction) => {
       const { email, password, username, firstname, lastname, image, roles } =
         req.body
-      const result = await this.authService.register(
+      const result = await this.authService.register({
         email,
         password,
         username,
-        firstname,
-        lastname,
+        firstName: firstname,
+        lastName: lastname,
         image,
         roles,
-      )
+      })
 
       return ResponseBuilder.success(res)
-        .withStatusCode(HTTP_OK)
+        .withStatusCode(HTTP_CREATED)
         .withData(result)
         .send()
     },
@@ -86,7 +86,11 @@ export class AuthController {
 
       return ResponseBuilder.success(res)
         .withStatusCode(HTTP_OK)
-        .withData(result)
+        .withData({ accessToken: result.accessToken })
+        .withCookie('refreshToken', result.refreshToken, {
+          httpOnly: true,
+          maxAge: 7 * 24 * 60 * 60 * 1000,
+        })
         .send()
     },
   )

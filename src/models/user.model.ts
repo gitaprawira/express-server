@@ -7,7 +7,7 @@ import { Role } from '../types/rbac.types'
  */
 export interface IUser extends Document {
   id: string
-  firstname: string
+  firstName: string
   lastName: string
   username: string
   email: string
@@ -26,7 +26,7 @@ export interface IUser extends Document {
  */
 const UserSchema: Schema = new Schema(
   {
-    firstname: { type: String, required: false },
+    firstName: { type: String, required: false },
     lastName: { type: String, required: false },
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },

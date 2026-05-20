@@ -1,8 +1,9 @@
 import express, { Application } from 'express'
-import bodyParser from 'body-parser'
+import helmet from 'helmet'
 import cookieParser from 'cookie-parser'
 import compression from 'compression'
 import cors from 'cors'
+import morgan from 'morgan'
 import swaggerUi from 'swagger-ui-express'
 import { swaggerSpec } from './config/swagger.config'
 import router from './routes'
@@ -11,33 +12,30 @@ import { AppError } from './utils/app-error'
 
 const app: Application = express()
 
-// Middleware
-app.use(cors({ credentials: true }))
+app.use(helmet())
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    credentials: true,
+  }),
+)
 app.use(compression())
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'))
 app.use(cookieParser())
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
-// Routes
 app.use('/api', router())
-
-// API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    message: 'Server is running',
-  })
+app.get('/health', (_req, res) => {
+  res.status(200).json({ success: true, statusCode: 200, message: 'Server is running' })
 })
 
-// 404 handler - must be before global error handler
-app.all('*', (req, res, next) => {
+app.all('*', (req, _res, next) => {
   next(new AppError(`Cannot find ${req.originalUrl} on this server!`, 404))
 })
 
-// Global Error Handler - must be last
 app.use(globalErrorHandler)
 
 export default app
